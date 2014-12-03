@@ -1,5 +1,5 @@
-(define maxTime::nat 59)
-(define nrJobs::nat 12)
+(define maxTime::int 59)
+(define nrJobs::int 12)
 (define-type ids (subtype (i::int) (and (>= i 1) (<= i nrJobs))))
 (define-type job 
 	(subtype (j::(record id::ids runningTime::nat startTime::nat endTime::nat))
@@ -27,6 +27,10 @@
 (define j11::(subtype (j::job) (= (select j id) 11)))
 (define j12::(subtype (j::job) (= (select j id) 12)))
 
+(define time::nat)
+
+(assert (forall (j1::job j2::job) (=> (= (select j1 id) (select j2 id)) (= (select j1 startTime) (select j2 startTime)))))
+
 (assert (startAfterEnd j3 j1))
 (assert (startAfterEnd j3 j2))
 (assert (startAfterEnd j5 j3))
@@ -47,17 +51,8 @@
 (assert (notConcurrent j5 j10))
 (assert (notConcurrent j7 j10))
 
-(assert (<= (select j1 endTime) maxTime))
-(assert (<= (select j2 endTime) maxTime))
-(assert (<= (select j3 endTime) maxTime))
-(assert (<= (select j4 endTime) maxTime))
-(assert (<= (select j5 endTime) maxTime))
-(assert (<= (select j6 endTime) maxTime))
-(assert (<= (select j7 endTime) maxTime))
-(assert (<= (select j8 endTime) maxTime))
-(assert (<= (select j9 endTime) maxTime))
-(assert (<= (select j10 endTime) maxTime))
-(assert (<= (select j11 endTime) maxTime))
-(assert (<= (select j12 endTime) maxTime))
+(assert (forall (j::job) (<= (select j endTime) maxTime)))
+(assert (forall (j::job) (<= (select j endTime) time)))
+(assert (exists (j::job) (= (select j endTime) time)))
 
 (check)
