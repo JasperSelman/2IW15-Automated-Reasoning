@@ -1,126 +1,94 @@
-(define-type pallet (record req::nat weight::nat))
+(define-type pallet (record id::nat req::nat))
 
-(define nuzzle::(subtype (p::pallet) (and (= (select p weight) 700) (= (select p req) 4))))
-(define prittle::(subtype (p::pallet) (and (= (select p weight) 800) (= (select p req) 21))))
-(define skipple::(subtype (p::pallet) (and (= (select p weight) 1000) (= (select p req) 8))))
-(define crottle::(subtype (p::pallet) (and (= (select p weight) 1500) (= (select p req) 10))))
-(define dupple::(subtype (p::pallet) (and (= (select p weight) 100) (= (select p req) 5))))
+(define nuzzle::(subtype (p::pallet) (= (select p req) 4)))
+(define prittle::(subtype (p::pallet)  (= (select p req) 266)))
+(define skipple::(subtype (p::pallet) (= (select p req) 8)))
+(define crottle::(subtype (p::pallet) (= (select p req) 10)))
+(define dupple::(subtype (p::pallet) (= (select p req) 5)))
 
 (define-type truckType 
-	(subtype (t::(record maxWeight::nat nrNuz::nat nrPrit::nat nrSkip::nat nrCrot::nat nrDup::nat))
-		(and
-			(<=
-				(+ 
-					(* (select t nrNuz) 700)
-					(* (select t nrPrit) 800)
-					(* (select t nrSkip) 1000)
-					(* (select t nrCrot) 1500)
-					(* (select t nrDup) 100)
-				)
-				(select t maxWeight)
-			)
-			(<=
-				(+
-					(select t nrNuz)
-					(select t nrPrit)
-					(select t nrSkip)
-					(select t nrCrot)
-					(select t nrDup)
-				)
-				(select t maxPallet)
-			)
-		)
-	)
+	(record maxWeight::nat maxPallet::nat)
 )
 (define-type truck 
 	(subtype (t::truckType) 
 		(and
 			(= (select t maxWeight) 7800)
 			(= (select t maxPallet) 8)
-			(or
-				(= (select t nrPrit) 0)
-				(= (select t nrCrot) 0)
-			)
 		)
-	)
-)
-(define-type noSkippleTruck
-	(subtype (t::truck)
-		(= (select t nrSkip) 0)
 	)
 )
 
 (define t1::truck)
 (define t2::truck)
-(define t3::noSkippleTruck)
-(define t4::noSkippleTruck)
-(define t5::noSkippleTruck)
-(define t6::noSkippleTruck)
+(define t3::truck)
+(define t4::truck)
+(define t5::truck)
+(define t6::truck)
 
-(assert 
-	(=
-		(+
-			(select t1 nrNuz)
-			(select t2 nrNuz)
-			(select t3 nrNuz)
-			(select t4 nrNuz)
-			(select t5 nrNuz)
-			(select t6 nrNuz)
+(define load::(tuple truck pallet nat))
+
+(assert
+	(forall (p::pallet)
+		(=
+			(+
+				(load t1 p)
+				(load t2 p)
+				(load t3 p)
+				(load t4 p)
+				(load t5 p)
+				(load t6 p)
+			)
+			(select p req)
 		)
-		(select nuzzle req)
 	)
 )
-(assert 
-	(=
-		(+
-			(select t1 nrPrit)
-			(select t2 nrPrit)
-			(select t3 nrPrit)
-			(select t4 nrPrit)
-			(select t5 nrPrit)
-			(select t6 nrPrit)
-		)
-		(select prittle req)
+
+(assert
+	(and
+		(>= (load t1 skipple) 0)
+		(>= (load t2 skipple) 0)
+		(= (load t3 skipple) 0)
+		(= (load t4 skipple) 0)
+		(= (load t5 skipple) 0)
+		(= (load t6 skipple) 0)
 	)
 )
-(assert 
-	(=
-		(+
-			(select t1 nrSkip)
-			(select t2 nrSkip)
-			(select t3 nrSkip)
-			(select t4 nrSkip)
-			(select t5 nrSkip)
-			(select t6 nrSkip)
+
+(assert
+	(forall (t::truck)
+		(or
+			(= (load t prittle) 0)
+			(= (load t crottle) 0)
 		)
-		(select skipple req)
 	)
 )
-(assert 
-	(=
-		(+
-			(select t1 nrCrot)
-			(select t2 nrCrot)
-			(select t3 nrCrot)
-			(select t4 nrCrot)
-			(select t5 nrCrot)
-			(select t6 nrCrot)
+
+(assert
+	(forall (t::truck)
+		(<=
+			(+ 
+				(* (load t nuzzle) 700)
+				(* (load t prittle) 800)
+				(* (load t skipple) 1000)
+				(* (load t crottle) 1500)
+				(* (load t dupple) 100)
+			)
+			(select t maxWeight)
 		)
-		(select crottle req)
 	)
 )
-(assert 
-	(=
-		(+
-			(select t1 nrDup)
-			(select t2 nrDup)
-			(select t3 nrDup)
-			(select t4 nrDup)
-			(select t5 nrDup)
-			(select t6 nrDup)
+
+(assert
+	(forall (t::truck)
+		(<=
+			(+ 
+				(load t nuzzle)
+				(load t prittle)
+				(load t skipple)
+				(load t crottle)
+				(load t dupple)
+			)
+			(select t maxPallet)
 		)
-		(select dupple req)
 	)
 )
-:formula
-(<= (select t1 nrCrot) 8)
