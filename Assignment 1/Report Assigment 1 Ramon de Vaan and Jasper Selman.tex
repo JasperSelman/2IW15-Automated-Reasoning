@@ -24,7 +24,184 @@ email: {\tt j.w.m.selman@tue.nl} & email: {\tt r.d.vaan@student.tue.nl}
 
 \vspace{8mm}
 
-\subsection*{Problem 2: Twelve Jobs}
+\subsection*{Problem 1: Loading Pallets}
+
+Sic trucks have to deliver pallets of obscure building blocks to a magic factory. Every truck has a capacity of 7800 kg and can carry at most eight pallets. In total, the following has to be delivered:
+\begin{itemize}
+\item Four pallets of nuzzles, each of weight 700 kg.
+\item A number of pallets of pritlles, eiach of weight 800 kg.
+\item Eight pallets of skipples, each of weight 1000 kg.
+\item Ten pallets of crottles, each of weight 1500 kg.
+\item Five pallets of dupples, each of weight 100 kg.
+\end{itemize}
+Moreover pritlles and crottles are not allowed to be in the same truck. Only two of the six trucks are allowed co carry skipples. Investigate what is the maximum number of pallets of prittles that can be delivered, and show how for that number all pallets may be dividided over the six trucks. 
+
+\vspace{8mm}
+
+\subsection*{Solution:}
+We generalize this problem by loading $n$ Trucks with $pt$ different types of pallets. Each truck $i$ has a maximum weight of $mw_i$ and a maximum capacity of $mc_i$ pallets. Each pallettype $pt_i$ has a weight of $w_i$ and an ammount of $a_i$ pallets of that type. We also have a set of $s$ trucks which are allowed to carry pallets of the type skipples.
+
+For doing so, we introduce $n \cdot p$ boolean variables of $p_{ij}$, where $1 \leq i \leq n$ and $0 \leq j \leq pt$. This means $i$ denotes the truck $t_i$ the pallets are in and $j$ denotes the amount of pallets of type $pt_j$. Now that we have this matrix and we know how it is represented we can express the formulas for the problem.
+\\
+\\
+Each pallettype $pt_j$ has $n_j$ pallets:
+\[\bigwedge_{j=1}^{pt} \Sigma_{i=1}^{n} \ p_{ij} = n_j\]
+Each truck $n_i$ has a maximum weight of $mw_i$:
+\[\bigwedge_{i=1}^{n} \Sigma_{j=0}^{pt} \ p_{ij} \cdot w_j \leq mw_i\]
+Each truck $n_i$ has a maximum capacity of $mc_i$:
+\[\bigwedge_{i=1}^{n} \Sigma_{j=0}^{pt} \ p_{ij}\leq mc_i\]
+There are no more than two trucks that carry type $pt3$ (the skipples). Since all the trucks are indistinguishable we can say we only put pallets of type $pt3$ in truck $t_1$ and $t_2$, because when we put a pallet of type $pt3$ in truck $t_i$ we give that truck the number $t_1$ or $t_2$ instead of its original number. The other truck with the original number $t_1$ or $t_2$ gets the trucknumber of $t_i$. Note that we can only do this when all of the trucks are indistinguishable, which is the case. We can also state that the summation of all the pallets of $pt_3$ in trucks $t_3$ until $t_n$ is 0. This gives us:
+\[\bigwedge \Sigma_{i=3}^{n} p_{i3} = 0i\]
+No truck $t_i$ can carry both type $pt2$ and $pt4$ (the prittles and the crotlles):
+\[\bigwedge_{i=1}^{n} p_{i2} = 0 \vee p_{i4} = 0 \]
+Now if we express these formulas in SMT syntax and use the values of the particular problem stated above for all the variables, we get the following program:
+
+{\footnotesize
+\begin{verbatim}
+(benchmark Exercise1-1.smt
+:extrafuns ((Truck Int Int Int) (maxWeight Int) (maxPallet Int) (N Int) (RN Int) (WN Int) (P Int) (RP Int) (WP Int) (S Int) (RS Int) (WS Int) (C Int) (RC Int) (WC Int) (D Int) (RD Int) (WD Int))
+:formula
+(and
+;;Define the maximum weight and maximum ammounts of pallets
+(= maxWeight 7800)
+(= maxPallet 8)
+
+;;The number per type of pallets
+(= N 1)
+(= P 2)
+(= S 3)
+(= C 4)
+(= D 5)
+
+;;The number per type of pallets
+(= RN 4)
+(= RP 20);;The max number of Prittles
+(= RS 8)
+(= RC 10)
+(= RD 5)
+
+;;Define the weight per pallettype
+(= WN 700)
+(= WP 800)
+(= WS 1000)
+(= WC 1500)
+(= WD 100)
+
+;;Check the weight for all the trucks
+(forall (?i Int)
+	(<= (+ (* (Truck ?i N) 700) (* (Truck ?i P) 800) (* (Truck ?i S) 1000) (* (Truck ?i C) 1500) (* (Truck ?i D) 100)) maxWeight)
+)
+
+;;The number of pallets per truck is larger than 0
+(forall (?i Int)
+	(and
+		(>= (Truck ?i N) 0)
+		(>= (Truck ?i P) 0)
+		(>= (Truck ?i S) 0)
+		(>= (Truck ?i C) 0)
+		(>= (Truck ?i D) 0)
+	)
+)
+
+;;The total amount of pallets per truck is at most maxPallet
+(forall (?i Int)
+	(<= (+ (Truck ?i N) (Truck ?i P) (Truck ?i S) (Truck ?i C) (Truck ?i D)) maxPallet)
+)
+
+;;For all trucks the number of prittles or crottles is equal to 0
+(forall (?i Int)
+	(or
+		(= (Truck ?i P) 0)
+		(= (Truck ?i C) 0)
+	)
+)
+
+;;Max two trucks with skipples
+(= (+ (Truck 3 S) (Truck 4 S) (Truck 5 S) (Truck 6 S)) 0)
+
+;;Check the total amount of pallets per type
+(= (+ (Truck 1 N) (Truck 2 N) (Truck 3 N) (Truck 4 N) (Truck 5 N) (Truck 6 N)) RN)
+(= (+ (Truck 1 P) (Truck 2 P) (Truck 3 P) (Truck 4 P) (Truck 5 P) (Truck 6 P)) RP)
+(= (+ (Truck 1 S) (Truck 2 S) (Truck 3 S) (Truck 4 S) (Truck 5 S) (Truck 6 S)) RS)
+(= (+ (Truck 1 C) (Truck 2 C) (Truck 3 C) (Truck 4 C) (Truck 5 C) (Truck 6 C)) RC)
+(= (+ (Truck 1 D) (Truck 2 D) (Truck 3 D) (Truck 4 D) (Truck 5 D) (Truck 6 D)) RD)
+)
+)
+\end{verbatim}
+}
+
+\noindent Applying {\tt yices -e Exercise1-1.smt} yields the following result
+within a fraction of a second:
+
+{\footnotesize
+\begin{verbatim}
+unknown
+(= maxWeight 7800)
+(= maxPallet 8)
+(= N 1)
+(= P 2)
+(= S 3)
+(= C 4)
+(= D 5)
+(= RN 4)
+(= RP 20)
+(= RS 8)
+(= RC 10)
+(= RD 5)
+(= WN 700)
+(= WP 800)
+(= WS 1000)
+(= WC 1500)
+(= WD 100)
+(= (Truck 3 3) 0)
+(= (Truck 4 3) 0)
+\end{verbatim}
+
+$\cdots \cdots$ }.
+
+\noindent The first variables are defined by giving all the variables a fixed value, these are the maxWeight, the maxPallets the types and the amount of pallets per type and their weight. On the bottom we get a record per truck how many pallets there are per type in a truck. If we put all these variables in a table we get the following table.\\
+\\
+\begin{tabular}{| l | l | l | l | l | l | l | l |}
+\hline
+truck	& nuzzles	& pritlles	& skipples	& crotlles	& dupples & $\#$ pallets & total weight\\
+\hline
+$t_1$	& 0	&	6	&	2	&	0	&	0	& 8 & 6800\\
+$t_2$	& 0	&	0	&	6	&	1	&	0	& 7 & 7500\\
+$t_3$	& 0	&	8	&	0	&	0	&	0	& 8 & 6400\\
+$t_4$	& 2	&	6	&	0	&	0	&	0	& 8 & 6200\\
+$t_5$	& 2	&	0	&	0	&	4	&	2	& 8 & 7600\\
+$t_6$	& 0	&	0	&	0	&	5	&	3	& 8 & 7800\\
+\hline
+$\#$ pallets	&	4	&	20	&	8	&	10	&	5	&  47	&\\
+\hline
+\end{tabular}
+
+\vspace{3mm}
+
+\noindent As you can see in the table all of the requirements are met. It is very easy to see that we are only able to raise the number of prittles deliverd with 1 pallet, because then all of the trucks have their maximum number of pallets loaded, but if we run the program with the number of prittles the response is unsat. Therefore the maximum number of prittles which can be delivered meeting all the requirements is 20 pallets.
+
+\vspace{3mm}
+
+{\bf Remark:} 
+
+\noindent The formula gives unknown instead of sat. This is due to the forall function in yices. This is a known problem.
+Thought we define the weight of each pallet type in the beginning of the program we cannot use the variable in the multiplication.
+The multiplication is not linear anymore in that case and yices does not support non linear multiplication.
+
+\vspace{3mm}
+
+{\bf Generalization:} 
+
+\noindent As we generalized our approach for $n$ rather than 6, it is
+interesting to see what happens for other values of $n$. For $n
+> 10$ we have to take care of the notation: if we keep the
+notation then it is not clear whether {\tt p111} represents 
+$p_{1,11}$ or $p_{11,1}$. This is solved by putting an extra 
+symbol between the two numbers. 
+
+For $n < 4$ the problem is not satisfiable anymore even with 0 pallets of prittles.
+
+\subsection*{Problem 3: Twelve Jobs}
 
 We have to find a way to run 12 jobs numbered 1 to 12 satisfying the following requirements:
 \begin{itemize}
@@ -306,4 +483,6 @@ Efficiency is not a problem: for $n = 60$ there are 3600
 variables and the formula consists of over 350,000 clauses, but 
 still {\tt yices} succeeds in finding a solution within a few
 seconds.
+
+
 \end{document}
