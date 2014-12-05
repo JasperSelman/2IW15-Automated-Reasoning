@@ -59,7 +59,9 @@ Now if we express these formulas in SMT syntax and use the values of the particu
 {\footnotesize
 \begin{verbatim}
 (benchmark Exercise1-1.smt
-:extrafuns ((Truck Int Int Int) (maxWeight Int) (maxPallet Int) (N Int) (RN Int) (WN Int) (P Int) (RP Int) (WP Int) (S Int) (RS Int) (WS Int) (C Int) (RC Int) (WC Int) (D Int) (RD Int) (WD Int))
+:extrafuns ((Truck Int Int Int) (maxWeight Int) (maxPallet Int) (N Int) (RN Int) (WN Int) 
+(P Int) (RP Int) (WP Int) (S Int) (RS Int) (WS Int) (C Int) (RC Int) (WC Int) (D Int) 
+(RD Int) (WD Int))
 :formula
 (and
 ;;Define the maximum weight and maximum ammounts of pallets
@@ -89,7 +91,8 @@ Now if we express these formulas in SMT syntax and use the values of the particu
 
 ;;Check the weight for all the trucks
 (forall (?i Int)
-	(<= (+ (* (Truck ?i N) 700) (* (Truck ?i P) 800) (* (Truck ?i S) 1000) (* (Truck ?i C) 1500) (* (Truck ?i D) 100)) maxWeight)
+	(<= (+ (* (Truck ?i N) 700) (* (Truck ?i P) 800) (* (Truck ?i S) 1000) 
+	(* (Truck ?i C) 1500) (* (Truck ?i D) 100)) maxWeight)
 )
 
 ;;The number of pallets per truck is larger than 0
@@ -184,8 +187,8 @@ $\#$ pallets	&	4	&	20	&	8	&	10	&	5	&  47	&\\
 
 {\bf Remark:} 
 
-\noindent The formula gives unknown instead of sat. This is due to the forall function in yices. This is a known problem.
-Thought we define the weight of each pallet type in the beginning of the program we cannot use the variable in the multiplication.
+\noindent The formula gives unknown instead of sat. This is due to the forall function in yices. This is a known problem.\\
+Though we define the weight of each pallet type in the beginning of the program we cannot use the variable in the multiplication.
 The multiplication is not linear anymore in that case and yices does not support non linear multiplication.
 
 \vspace{3mm}
@@ -221,207 +224,110 @@ We have to find a solution for which the total running time is minimized.
 \vspace{8mm}
 
 \subsection*{Solution:}
-Its hard to generalize this problem, since we cannot generailze all the requirements. However it is possible to generalize the first two requirements, but since that has no use in this problem we will not do this. 
+Its hard to generalize this problem, since we cannot generailze all the requirements. However it is possible to generalize the first two requirements. This means we get $n$ jobs.
 
+For this problem we have $j_i$ jobs with $1 \leq i \leq 12$. We define the runningtime $jr_i$, the starttime $js_i$ and the endtime $je_i$ for all the jobs with $1 \leq i \leq 12$.\\
+Now the first requirment is that for job $j_i$ the runningtime of the job is $i+i$:
+\[\bigwedge_{i=1}^{n} jr_i = i + 5\]\\
+The second requirement is that all jobs run without interrupt. If we put this in a formula we get:
+\[\bigwedge_{i=1}^{n} je_i - js_i = jr_i \]
+Now there are only requirments left which are job specific. For all of these jobs we introduce $n \cdot 3$ boolean variables $M_{ij}$, with $1 \leq i \leq n$ and $1 \leq j \leq 3$. When $j =1$ the starttime of job i is represented, for $j=2$ the endtime is represented and for $j=3$ the runningtime is represented. For the following requirements we made an assumption. If it is stated that job $j_2$ can only start after job $j_1$ is finished and job $j_1$ finishes on timeslot $i$ we assume that job $j_2$ can start on timeslot $i$. The requirements can be modelled as following:\\
+\[ (js_3 \rightarrow je_1 \wedge je_2) \wedge (js_5 \rightarrow je_3 \wedge je_4)  \wedge (js_7 \rightarrow je_3 \wedge je_4 \wedge je_6) \wedge (js_8 \rightarrow js_5) \]
+\[ \wedge (js_9 \rightarrow je_5 \wedge je_8) \wedge (js_{11} \rightarrow je_{10})  \wedge (js_{12} \rightarrow je_9 \wedge je_{11}) \]
+Now there is only one requirment left. That is that jobs 5, 7 and 10 may not run at the same time. In other words this means if $js_5$ is true then it cannot be possible that $je_5$ is false but $js_7$ or $js_{10}$ are true. When we put this in a formula get:
+\[ js_5 \rightarrow  \neg(\neg je_5 \wedge js_7) \wedge\neg(\neg je_5 \wedge js_{10}) \]
+\[ js_7 \rightarrow  \neg(\neg je_7 \wedge js_5) \wedge\neg(\neg je_7 \wedge js_{10}) \]
+\[ js_{10} \rightarrow  \neg(\neg je_{10} \wedge js_5) \wedge\neg(\neg je_{10} \wedge js_{7}) \]
 
-We generalize this problem to putting $n$ queens on an $n \times n$
-chess board, for any $n \geq 1$, with the same restriction that no 
-two share a colum, row or diagonal.
-
-For doing so, we introduce $n^2$  
- boolean variables $p_{ij}$ for $i,j = 1,\ldots,n$, where for 
-every $i,j = 1,\ldots,n$ the value of $p_{ij}$ will be true if and
-only if a queen will be put on position $(i,j)$, that is, in the
-$i$-th row and in the $j$-th column.
-
-As we have to put exactly $n$ queens, and no two are allowed to be
-on the same row, every row should contain at least one queen. For
-row $i$ this is expressed by the formula
-\[ \bigvee_{j=1}^n p_{ij}.\]
-In a similar way every column should contain at least one queen;
-for column $j$ this is expressed by the formula 
-\[ \bigvee_{i=1}^n p_{ij}.\]
-Next we express that every row contains at most one queen, that
-is, for every two distinct positions $j,k$ it is not allowed that
-both $p_{ij}$ and $p_{ik}$ are true. For row $i$ this is expressed
-by the formula
-\[ \bigwedge_{j,k:1 \leq j < k \leq n} \neg p_{ij} \vee \neg p_{ik}.\]
-Similarly, every column should contain at most one queen;
-for column $j$ this is expressed by the formula 
-\[ \bigwedge_{i,k:1 \leq i < k \leq n} \neg p_{ij} \vee \neg p_{kj} \]
-Finally, we consider the requirements on diagonals. Two positions
-$(i,j)$ and $(k,m)$ are on the same diagonal in the one direction
-if and only if $i+k = j+m$, and they are on the same diagonal in 
-the other direction if and only if $i-k = j-m$. For every pair of
-such positions it is not allowed that they are both occupied by a
-queen, so we require
-\[ \neg p_{ij} \vee \neg p_{km}.\]
-The total formula now consists of the conjunction of all these
-ingredients, that is, 
-\[ \bigwedge_{i=1}^n (\bigvee_{j=1}^n p_{ij}) \;\; \wedge \]
-\[ \bigwedge_{j=1}^n (\bigvee_{i=1}^n p_{ij}) \;\; \wedge \]
-\[  \bigwedge_{i=1}^n (\bigwedge_{j,k:1 \leq j < k \leq n} \neg 
-p_{ij} \vee \neg p_{ik}) \;\; \wedge \]
-\[ \bigwedge_{j=1}^n ( \bigwedge_{i,k:1 \leq i < k \leq n} \neg p_{ij}
-\vee \neg p_{kj}) \;\; \wedge \]
-\[ \bigwedge_{i,k:1 \leq i < k \leq n} ( \bigwedge_{j,m: i+k = j+m \vee
-i-k = j-m} \neg p_{ij} \vee \neg p_{km}) \]
-
-This formula is easily expressed in SMT syntax, for instance, for
-$n=8$ one can generate
+\noindent These formulas are expressed in SMT syntax and that gives us:
 
 {\footnotesize
-
-{\tt;;Define the maximum running time for comparison
-
+\begin{verbatim}
+;;Define the maximum running time for comparison
 (define maxTime::int 59)
 
-
 ;;Define the number of jobs
-
 (define nrJobs::int 12)
 
-
 ;;Define the id's for all the jobs
-
 (define-type ids (subtype (i::int) (and (>= i 1) (<= i nrJobs))))
 
-
-
 ;;Define a job as a record of an id, the running time, the start time and the end time
-
 ;;The first line makes sure the first requirement is met for all the jobs
-
 ;;The second line makes sure the second requirement is met for all the jobs
-
 (define-type job 
-
 	(subtype (j::(record id::ids runningTime::nat startTime::nat endTime::nat))
-
 		(and 
-
 			(= (select j runningTime) (+ (select j id) 5))
-
 			(= (select j endTime) (+ (select j startTime) (select j runningTime)))
-
 		)
-
 	)
-
 )
 
-
-;;Define a function for jobs $j_1$ and $j_2$ such that $j_1$ can only start after $j_2$ is finished
-
+;;Define a function for jobs j_1 and j_2 such that j_1 can only start after j_2 is finished
 (define startAfterEnd::(-> job job bool) (lambda (j1::job j2::job) 
-
 (<= (select j2 endTime) (select j1 startTime))))
 
-
-;;Define a function for jobs $j_1$ and $j_2$ such that $j_1$ can only start if $j_2$ is started
-
+;;Define a function for jobs j_1 and j_2 such that j_1 can only start if j_2 is started
 (define startAfterStart::(-> job job bool) (lambda (j1::job j2::job) 
-
 (<= (select j2 startTime) (select j1 startTime))))
 
-
-;;Define a function for jobs $j_1$ and $j_2$ such that $j_1$ and $j_2$ can not run at the same time
-
+;;Define a function for jobs j_1 and j_2 such that j_1 and j_2 can not run at the same time
 (define notConcurrent::(-> job job bool) (lambda (j1::job j2::job) 
-
 (or (startAfterEnd j1 j2) (startAfterEnd j2 j1))))
 
-
 ;;Define all the jobs with the associated id
-
 (define j1::(subtype (j::job) (= (select j id) 1)))
-
 (define j2::(subtype (j::job) (= (select j id) 2)))
-
 (define j3::(subtype (j::job) (= (select j id) 3)))
-
 (define j4::(subtype (j::job) (= (select j id) 4)))
-
 (define j5::(subtype (j::job) (= (select j id) 5)))
-
 (define j6::(subtype (j::job) (= (select j id) 6)))
-
 (define j7::(subtype (j::job) (= (select j id) 7)))
-
 (define j8::(subtype (j::job) (= (select j id) 8)))
-
 (define j9::(subtype (j::job) (= (select j id) 9)))
-
 (define j10::(subtype (j::job) (= (select j id) 10)))
-
 (define j11::(subtype (j::job) (= (select j id) 11)))
-
 (define j12::(subtype (j::job) (= (select j id) 12)))
 
-
 ;;Define a time variable (to keep track of the total runningtime)
-
 (define time::nat)
 
-
 ;;Make sure that if there are two jobs with the same id, they have the same starttime
-
-(assert (forall (j1::job j2::job) (=> (= (select j1 id) (select j2 id) 
-
- (= (select j1 startTime) (select j2 startTime)))))
-
+(assert (forall (j1::job j2::job) (=> (= (select j1 id) (select j2 id)) 
+(= (select j1 startTime) (select j2 startTime)))))
 
 ;;The requirements regarding specific jobs
-
 (assert (startAfterEnd j3 j1))
-
 (assert (startAfterEnd j3 j2))
-
 (assert (startAfterEnd j5 j3))
-
 (assert (startAfterEnd j5 j4))
-
 (assert (startAfterEnd j7 j3))
-
 (assert (startAfterEnd j7 j4))
-
 (assert (startAfterEnd j7 j6))
-
 
 (assert (startAfterStart j8 j5))
 
-
 (assert (startAfterEnd j9 j5))
-
 (assert (startAfterEnd j9 j8))
-
 (assert (startAfterEnd j11 j10))
-
 (assert (startAfterEnd j12 j9))
-
 (assert (startAfterEnd j12 j11))
 
-
 (assert (notConcurrent j5 j7))
-
 (assert (notConcurrent j5 j10))
-
 (assert (notConcurrent j7 j10))
 
-
 ;;Check that all the end times of jobs are smaller or equal to maxTime
-
 (assert (forall (j::job) (<= (select j endTime) maxTime)))
-
 (assert (forall (j::job) (<= (select j endTime) time)))
-
 (assert (exists (j::job) (= (select j endTime) time)))
 
-
-(check)}
+(check)
+\end{verbatim}
 }
 
-Applying {\tt yices -e Exercise1-3.smt2} yields the following result
+\noindent Applying {\tt yices -e Exercise1-3.smt} yields the following result
 within a fraction of a second:
 
 {\footnotesize
@@ -450,39 +356,44 @@ within a fraction of a second:
 
 $\cdots \cdots$ }.
 
-If we only look at the starting times we see that J1 = 0, J2 = 0, J3 = 7, J4 = 0, J5 =15, J6 = 7, J7 = 47, J8 = 15, J9 = 28, J10 = 0, J11 = 16 and J12 =42.  Since we know that for all jobs $i$ the running time is equal to $i + 5$. These starting times meet the requirements stated at the top. The total running time for this is 59. Now if we run the program with maxTime $\leq$ 58 we get unsat and therefore the minimum total running time for these requirements is 59.
+\noindent Now if we put all these times in a table, we get the following table:\\
+\\
+\begin{tabular}{| l | l | l | l |}
+\hline
+Job	& Starttime	& Endtime	& Duration\\
+\hline
+$j_1$	& 0	&	6	&	6\\
+$j_2$	& 0	&	7	&	7\\
+$j_3$	& 7	&	15	&	8\\
+$j_4$	& 0	&	9	&	9\\
+$j_5$	& 15	&	25	&	10\\
+$j_6$	& 7	&	18	&	11\\
+$j_7$	& 47	&	59	&	12\\
+$j_8$	& 15	&	28	&	13\\
+$j_9$	& 28	&	42	&	14\\
+$j_{10}$	& 0	&	15	&	15\\
+$j_{11}$	& 16	&	32	&	16\\
+$j_{12}$	& 42	&	59	&	17\\
+\hline
+All jobs	&	0	&	59	&	59\\
+\hline
+\end{tabular}
+
+\vspace{3mm}
+
+Now you can easily check all the requirements of this problem with this table and you see that they are all met. The total running time for all of these jobs is 59. Now if we run the program with maxTime $\leq$ 58 we get unsat and therefore the minimum total running time for these requirements is 59.
 
 \vspace{3mm}
 
 {\bf Remark:} 
 
-Our formula contains some redundancy: the requirement that every
-row contains exactly one queen implies that there are exactly $n$
-queens in total. By expressing that every column contains at least
-one queen, from this property one concludes that also every column
-contains at most one queen. We chose for this redundancy for
-keeping the symmetry in the solution, and also following the
-general strategy that introducing redundancy is often good for
-efficiency.
+The formula gives unknown instead of sat. This is due to the forall function in yices. This is a known problem.\\
 
 \vspace{3mm}
 
 {\bf Generalization:} 
 
-As we generalized our approach for $n$ rather than 8, it is
-interesting to see what happens for other values of $n$. For $n
-> 10$ we have to take care of the notation: if we keep the
-notation then it is not clear whether {\tt p111} represents 
-$p_{1,11}$ or $p_{11,1}$. This is solved by putting an extra 
-symbol between the two numbers. 
+Though it is hard to generalize the whole problem, it is not hard to adapt the program quickly to other amount of jobs. The only thing that needs to be done is to add clauses for the new jobs to the set of clauses regarding only specified jobs.\\
 
-For $n=3$ the resulting formula is unsatisfiable, showing that
-there is no solution. For $n = 4,5,6,\ldots$ the formula is
-satisfiable, by which is a solution of the problem is found.
-Efficiency is not a problem: for $n = 60$ there are 3600
-variables and the formula consists of over 350,000 clauses, but 
-still {\tt yices} succeeds in finding a solution within a few
-seconds.
-
-
+\vspace{3mm}
 \end{document}
