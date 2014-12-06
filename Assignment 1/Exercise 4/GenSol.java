@@ -82,12 +82,10 @@ public class GenSol {
     }
     
     public static void main(String[] args) {
-//        if(args.length != 1) {
-//            throw new IllegalArgumentException("Need exactly 4 arguments.");
-//        }
-        File f = new File("C:\\Users\\s105365\\Documents\\GitHub\\2IW15-Automated-Reasoning\\Assignment 1\\Exercise 4\\Temp.smt2");
-//        if(doPrint(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]), new File(args[3]))) {
-        if(doPrint(10, 8, 157, f)) {
+        if(args.length != 1) {
+            throw new IllegalArgumentException("Need exactly 4 arguments.");
+        }
+        if(doPrint(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]), new File(args[3]))) {
             System.out.println("Succes!");
             System.exit(0);
         } else {
