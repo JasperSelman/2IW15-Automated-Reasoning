@@ -1,19 +1,44 @@
 (benchmark Temp2.smt
 	:extrafuns (
-		(steps int) (Values int int int)
+		(size int) (steps int) (Values int int int)
 	) 
 	:formula ( and 
 		(= steps 5)
+		(= size 8)
 		
-		(or
-			(= (Values steps 1) 157)
-			(= (Values steps 2) 157)
-			(= (Values steps 3) 157)
-			(= (Values steps 4) 157)
-			(= (Values steps 5) 157)
-			(= (Values steps 6) 157)
-			(= (Values steps 7) 157)
-			(= (Values steps 8) 157)
+		(forall (?i int) 
+			(and
+				(= (Values ?i 1) 1)
+				(= (Values ?i size) size)
+				(= (Values 0 ?i) ?i)
+			)
+		)
+		
+		(forall (?i int)
+			(implies
+				(and
+					(>= ?i 1)
+					(<= ?i steps)
+				)
+				(forall (?k int)
+					(implies
+						(and
+							(> ?k 1)
+							(< ?k size)
+						)
+						(or
+							(= (Values ?i ?k) (Values (- ?i 1) ?k))
+							(= 
+								(Values ?i ?k)
+								(+
+									(Values (- ?i 1) (- ?k 1))
+									(Values (- ?i 1) (+ ?k 1))
+								)
+							)
+						)
+					)
+				)
+			)
 		)
 	)
 )
