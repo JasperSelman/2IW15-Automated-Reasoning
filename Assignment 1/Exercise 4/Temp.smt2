@@ -1,11 +1,12 @@
-(define steps::int 8)
+(define steps::int 2)
+(define searchValue::int 157)
 
 (define-type range (subrange 1 8))
 (define-type adaptable (subrange 2 7))
 (define-type row (subrange 0 steps))
 (define-type adaptableRow (subrange 1 steps))
 
-(define matrix::(tuple row range int))
+(define matrix::(-> row range int))
 
 (define calculateValue::(-> row adaptable int) (lambda (r::row a::adaptable) 
 	(+
@@ -53,6 +54,6 @@
 
 (assert (forall (r::adaptableRow) (= (nrChanged r) 1)))
 
-(assert (exists (a::adaptable) (= (matrix steps a) 157)))
+(assert (exists (a::adaptable) (= (matrix steps a) searchValue)))
 
 (check)
