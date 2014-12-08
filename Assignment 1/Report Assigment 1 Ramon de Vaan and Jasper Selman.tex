@@ -18,7 +18,7 @@
 \begin{tabular}{c c}
 Jasper Selman & Ramon de Vaan\\
 0741516 & 0758873\\
-email: {\tt j.w.m.selman@tue.nl} & email: {\tt r.d.vaan@student.tue.nl}
+{\tt j.w.m.selman@tue.nl} & {\tt r.d.vaan@student.tue.nl}
 \end{tabular}
 \end{center}
 
@@ -26,32 +26,32 @@ email: {\tt j.w.m.selman@tue.nl} & email: {\tt r.d.vaan@student.tue.nl}
 
 \subsection*{Problem 1: Loading Pallets}
 
-Sic trucks have to deliver pallets of obscure building blocks to a magic factory. Every truck has a capacity of 7800 kg and can carry at most eight pallets. In total, the following has to be delivered:
+Six trucks have to deliver pallets of obscure building blocks to a magic factory. Every truck has a capacity of 7800 kg and can carry at most eight pallets. In total, the following has to be delivered:
 \begin{itemize}
 \item Four pallets of nuzzles, each of weight 700 kg.
-\item A number of pallets of pritlles, eiach of weight 800 kg.
+\item A number of pallets of prittles, each of weight 800 kg.
 \item Eight pallets of skipples, each of weight 1000 kg.
 \item Ten pallets of crottles, each of weight 1500 kg.
 \item Five pallets of dupples, each of weight 100 kg.
 \end{itemize}
-Moreover pritlles and crottles are not allowed to be in the same truck. Only two of the six trucks are allowed co carry skipples. Investigate what is the maximum number of pallets of prittles that can be delivered, and show how for that number all pallets may be dividided over the six trucks. 
+Moreover prittles and crottles are not allowed to be in the same truck. Only two of the six trucks are allowed to carry skipples. Investigate what is the maximum number of pallets of prittles that can be delivered, and show how for that number all pallets may be divided over the six trucks.
 
 \vspace{8mm}
 
 \subsection*{Solution:}
-We generalize this problem by loading $n$ Trucks with $pt$ different types of pallets. Each truck $i$ has a maximum weight of $mw_i$ and a maximum capacity of $mc_i$ pallets. Each pallettype $pt_i$ has a weight of $w_i$ and an ammount of $a_i$ pallets of that type. We also have a set of $s$ trucks which are allowed to carry pallets of the type skipples.
+We generalize this problem by loading $n$ Trucks with $k$ different types of pallets. Each truck $t_i$, with $1 \leq i \leq n$, has a maximum weight of $mw_i$ and a maximum capacity of $mc_i$ pallets. Each pallettype $pt_j$, with $1 \leq j \leq k$, has a weight of $w_j$ and an required amount of $n_j$ pallets delivered of that type. We also have $s \leq n$ trucks which are allowed to carry pallets of the type skipples.
 
-For doing so, we introduce $n \cdot p$ boolean variables of $p_{ij}$, where $1 \leq i \leq n$ and $0 \leq j \leq pt$. This means $i$ denotes the truck $t_i$ the pallets are in and $j$ denotes the amount of pallets of type $pt_j$. Now that we have this matrix and we know how it is represented we can express the formulas for the problem.
+For doing so, we introduce a variable $z_{ij}$, where $1 \leq i \leq n$ and $1 \leq j \leq k$. $z_{ij}$ denotes the number of pallets of type $pt_j$ that are loaded in truck $t_i$. Now that we have this matrix and we know how it is represented we can express the formulas for the problem.
 \\
 \\
 Each pallettype $pt_j$ has $n_j$ pallets:
-\[\bigwedge_{j=1}^{pt} \Sigma_{i=1}^{n} \ p_{ij} = n_j\]
-Each truck $n_i$ has a maximum weight of $mw_i$:
-\[\bigwedge_{i=1}^{n} \Sigma_{j=0}^{pt} \ p_{ij} \cdot w_j \leq mw_i\]
-Each truck $n_i$ has a maximum capacity of $mc_i$:
-\[\bigwedge_{i=1}^{n} \Sigma_{j=0}^{pt} \ p_{ij}\leq mc_i\]
-There are no more than two trucks that carry type $pt3$ (the skipples). Since all the trucks are indistinguishable we can say we only put pallets of type $pt3$ in truck $t_1$ and $t_2$, because when we put a pallet of type $pt3$ in truck $t_i$ we give that truck the number $t_1$ or $t_2$ instead of its original number. The other truck with the original number $t_1$ or $t_2$ gets the trucknumber of $t_i$. Note that we can only do this when all of the trucks are indistinguishable, which is the case. We can also state that the summation of all the pallets of $pt_3$ in trucks $t_3$ until $t_n$ is 0. This gives us:
-\[\bigwedge \Sigma_{i=3}^{n} p_{i3} = 0i\]
+\[\bigwedge_{j=1}^{k} \Sigma_{i=1}^{n} \ p_{ij} = n_j\]
+Each truck $t_i$ has a maximum weight of $mw_i$:
+\[\bigwedge_{i=1}^{n} \Sigma_{j=1}^{k} \ p_{ij} \cdot w_j \leq mw_i\]
+Each truck $t_i$ has a maximum capacity of $mc_i$:
+\[\bigwedge_{i=1}^{n} \Sigma_{j=1}^{pt} \ p_{ij}\leq mc_i\]
+There are no more than $s$ trucks that carry type $pt_3$ (the skipples). Since all the trucks are indistinguishable we can say we only put pallets of type $pt_3$ in truck $t_1 \cdots t_s$, and then have all the other trucks $t_{s+1} \cdots t_n$ carry 0 pallets of type $pt_3$. This gives us:
+\[\bigwedge \Sigma_{i=s + 1}^{n} p_{i3} = 0\]
 No truck $t_i$ can carry both type $pt2$ and $pt4$ (the prittles and the crotlles):
 \[\bigwedge_{i=1}^{n} p_{i2} = 0 \vee p_{i4} = 0 \]
 Now if we express these formulas in SMT syntax and use the values of the particular problem stated above for all the variables, we get the following program:
@@ -59,8 +59,8 @@ Now if we express these formulas in SMT syntax and use the values of the particu
 {\footnotesize
 \begin{verbatim}
 (benchmark Exercise1-1.smt
-:extrafuns ((Truck Int Int Int) (maxWeight Int) (maxPallet Int) (N Int) (RN Int) (WN Int) 
-(P Int) (RP Int) (WP Int) (S Int) (RS Int) (WS Int) (C Int) (RC Int) (WC Int) (D Int) 
+:extrafuns ((Truck Int Int Int) (maxWeight Int) (maxPallet Int) (N Int) (RN Int) (WN Int)
+(P Int) (RP Int) (WP Int) (S Int) (RS Int) (WS Int) (C Int) (RC Int) (WC Int) (D Int)
 (RD Int) (WD Int))
 :formula
 (and
@@ -91,7 +91,7 @@ Now if we express these formulas in SMT syntax and use the values of the particu
 
 ;;Check the weight for all the trucks
 (forall (?i Int)
-	(<= (+ (* (Truck ?i N) 700) (* (Truck ?i P) 800) (* (Truck ?i S) 1000) 
+	(<= (+ (* (Truck ?i N) 700) (* (Truck ?i P) 800) (* (Truck ?i S) 1000)
 	(* (Truck ?i C) 1500) (* (Truck ?i D) 100)) maxWeight)
 )
 
@@ -166,7 +166,7 @@ $\cdots \cdots$ }.
 \\
 \begin{tabular}{| l | l | l | l | l | l | l | l |}
 \hline
-truck	& nuzzles	& pritlles	& skipples	& crotlles	& dupples & $\#$ pallets & total weight\\
+truck	& nuzzles	& prittles	& skipples	& crotlles	& dupples & $\#$ pallets & total weight\\
 \hline
 $t_1$	& 0	&	6	&	2	&	0	&	0	& 8 & 6800\\
 $t_2$	& 0	&	0	&	6	&	1	&	0	& 7 & 7500\\
@@ -181,11 +181,11 @@ $\#$ pallets	&	4	&	20	&	8	&	10	&	5	&  47	&\\
 
 \vspace{3mm}
 
-\noindent As you can see in the table all of the requirements are met. It is very easy to see that we are only able to raise the number of prittles deliverd with 1 pallet, because then all of the trucks have their maximum number of pallets loaded, but if we run the program with the number of prittles the response is unsat. Therefore the maximum number of prittles which can be delivered meeting all the requirements is 20 pallets.
+\noindent As you can see in the table all of the requirements are met. It is very easy to see that we are only able to raise the number of prittles delivered with 1 pallet, because then all of the trucks have their maximum number of pallets loaded, but if we run the program with the number of prittles the response is unsat. Therefore the maximum number of prittles which can be delivered meeting all the requirements is 20 pallets.
 
 \vspace{3mm}
 
-{\bf Remark:} 
+{\bf Remark:}
 
 \noindent The formula gives unknown instead of sat. This is due to the forall function in yices. This is a known problem.\\
 Though we define the weight of each pallet type in the beginning of the program we cannot use the variable in the multiplication.
@@ -193,14 +193,14 @@ The multiplication is not linear anymore in that case and yices does not support
 
 \vspace{3mm}
 
-{\bf Generalization:} 
+{\bf Generalization:}
 
 \noindent As we generalized our approach for $n$ rather than 6, it is
 interesting to see what happens for other values of $n$. For $n
 > 10$ we have to take care of the notation: if we keep the
-notation then it is not clear whether {\tt p111} represents 
-$p_{1,11}$ or $p_{11,1}$. This is solved by putting an extra 
-symbol between the two numbers. 
+notation then it is not clear whether {\tt p111} represents
+$p_{1,11}$ or $p_{11,1}$. This is solved by putting an extra
+symbol between the two numbers.
 
 For $n < 4$ the problem is not satisfiable anymore even with 0 pallets of prittles.
 
@@ -219,22 +219,22 @@ We have to find a way to run 12 jobs numbered 1 to 12 satisfying the following r
 \item Job 12 may only start if jobs 9 and 11 have been finished.
 \item Jobs 5, 7 and 10 require a special equipment of which only one copy is available, so no two of these jobs may run at the same time.
 \end{itemize}
-We have to find a solution for which the total running time is minimized. 
+We have to find a solution for which the total running time is minimized.
 
 \vspace{8mm}
 
 \subsection*{Solution:}
-Its hard to generalize this problem, since we cannot generailze all the requirements. However it is possible to generalize the first two requirements. This means we get $n$ jobs.
+Its hard to generalize this problem, since we cannot generalize all the requirements. However it is possible to generalize the first two requirements. This means we get $n$ jobs.
 
-For this problem we have $j_i$ jobs with $1 \leq i \leq 12$. We define the runningtime $jr_i$, the starttime $js_i$ and the endtime $je_i$ for all the jobs with $1 \leq i \leq 12$.\\
-Now the first requirment is that for job $j_i$ the runningtime of the job is $i+i$:
+Let $j_i$ denote job $i$, with $1 \leq i \leq 12$. We define the runningtime $jr_i$, the starttime $js_i$ and the endtime $je_i$ for all the jobs with $1 \leq i \leq 12$.\\
+Now the first requirement is that for job $j_i$ the runningtime of the job is $i+i$:
 \[\bigwedge_{i=1}^{n} jr_i = i + 5\]\\
 The second requirement is that all jobs run without interrupt. If we put this in a formula we get:
 \[\bigwedge_{i=1}^{n} je_i - js_i = jr_i \]
-Now there are only requirments left which are job specific. For all of these jobs we introduce $n \cdot 3$ boolean variables $M_{ij}$, with $1 \leq i \leq n$ and $1 \leq j \leq 3$. When $j =1$ the starttime of job i is represented, for $j=2$ the endtime is represented and for $j=3$ the runningtime is represented. For the following requirements we made an assumption. If it is stated that job $j_2$ can only start after job $j_1$ is finished and job $j_1$ finishes on timeslot $i$ we assume that job $j_2$ can start on timeslot $i$. The requirements can be modelled as following:\\
+Now there are only requirements left which are job specific. For all of these jobs we introduce $n \cdot 3$ boolean variables $M_{ij}$, with $1 \leq i \leq n$ and $1 \leq j \leq 3$. When $j =1$ the starttime of job i is represented, for $j=2$ the endtime is represented and for $j=3$ the runningtime is represented. For the following requirements we made an assumption. If it is stated that job $j_2$ can only start after job $j_1$ is finished and job $j_1$ finishes on timeslot $i$ we assume that job $j_2$ can start on timeslot $i$. The requirements can be modelled as following:\\
 \[ (js_3 \rightarrow je_1 \wedge je_2) \wedge (js_5 \rightarrow je_3 \wedge je_4)  \wedge (js_7 \rightarrow je_3 \wedge je_4 \wedge je_6) \wedge (js_8 \rightarrow js_5) \]
 \[ \wedge (js_9 \rightarrow je_5 \wedge je_8) \wedge (js_{11} \rightarrow je_{10})  \wedge (js_{12} \rightarrow je_9 \wedge je_{11}) \]
-Now there is only one requirment left. That is that jobs 5, 7 and 10 may not run at the same time. In other words this means if $js_5$ is true then it cannot be possible that $je_5$ is false but $js_7$ or $js_{10}$ are true. When we put this in a formula get:
+Now there is only one requirement left. That is that jobs 5, 7 and 10 may not run at the same time. In other words this means if $js_5$ is true then it cannot be possible that $je_5$ is false but $js_7$ or $js_{10}$ are true. When we put this in a formula get:
 \[ js_5 \rightarrow  \neg(\neg je_5 \wedge js_7) \wedge\neg(\neg je_5 \wedge js_{10}) \]
 \[ js_7 \rightarrow  \neg(\neg je_7 \wedge js_5) \wedge\neg(\neg je_7 \wedge js_{10}) \]
 \[ js_{10} \rightarrow  \neg(\neg je_{10} \wedge js_5) \wedge\neg(\neg je_{10} \wedge js_{7}) \]
@@ -255,9 +255,9 @@ Now there is only one requirment left. That is that jobs 5, 7 and 10 may not run
 ;;Define a job as a record of an id, the running time, the start time and the end time
 ;;The first line makes sure the first requirement is met for all the jobs
 ;;The second line makes sure the second requirement is met for all the jobs
-(define-type job 
+(define-type job
 	(subtype (j::(record id::ids runningTime::nat startTime::nat endTime::nat))
-		(and 
+		(and
 			(= (select j runningTime) (+ (select j id) 5))
 			(= (select j endTime) (+ (select j startTime) (select j runningTime)))
 		)
@@ -265,15 +265,15 @@ Now there is only one requirment left. That is that jobs 5, 7 and 10 may not run
 )
 
 ;;Define a function for jobs j_1 and j_2 such that j_1 can only start after j_2 is finished
-(define startAfterEnd::(-> job job bool) (lambda (j1::job j2::job) 
+(define startAfterEnd::(-> job job bool) (lambda (j1::job j2::job)
 (<= (select j2 endTime) (select j1 startTime))))
 
 ;;Define a function for jobs j_1 and j_2 such that j_1 can only start if j_2 is started
-(define startAfterStart::(-> job job bool) (lambda (j1::job j2::job) 
+(define startAfterStart::(-> job job bool) (lambda (j1::job j2::job)
 (<= (select j2 startTime) (select j1 startTime))))
 
 ;;Define a function for jobs j_1 and j_2 such that j_1 and j_2 can not run at the same time
-(define notConcurrent::(-> job job bool) (lambda (j1::job j2::job) 
+(define notConcurrent::(-> job job bool) (lambda (j1::job j2::job)
 (or (startAfterEnd j1 j2) (startAfterEnd j2 j1))))
 
 ;;Define all the jobs with the associated id
@@ -294,7 +294,7 @@ Now there is only one requirment left. That is that jobs 5, 7 and 10 may not run
 (define time::nat)
 
 ;;Make sure that if there are two jobs with the same id, they have the same starttime
-(assert (forall (j1::job j2::job) (=> (= (select j1 id) (select j2 id)) 
+(assert (forall (j1::job j2::job) (=> (= (select j1 id) (select j2 id))
 (= (select j1 startTime) (select j2 startTime)))))
 
 ;;The requirements regarding specific jobs
@@ -385,13 +385,13 @@ Now you can easily check all the requirements of this problem with this table an
 
 \vspace{3mm}
 
-{\bf Remark:} 
+{\bf Remark:}
 
 The formula gives unknown instead of sat. This is due to the forall function in yices. This is a known problem.\\
 
 \vspace{3mm}
 
-{\bf Generalization:} 
+{\bf Generalization:}
 
 Though it is hard to generalize the whole problem, it is not hard to adapt the program quickly to other amount of jobs. The only thing that needs to be done is to add clauses for the new jobs to the set of clauses regarding only specified jobs.\\
 
@@ -410,19 +410,42 @@ We can generalize this solution in such a way that we have $m$ integer variables
 \[a_i := a_{i-1} + a_{i+1} \]
 The value 157 can ge generalized to value $A$, the value to achieve. \\
 \\
-\indent In our setting $m$ has the value of 8 and $A$ has the value 157. For this program we use a $n \cdot m$ matrix, where the rows $n$ are the amount of steps + 1 and the collumns $m$ are the number of variables in the setting. So now we introduce $n \cdot m$ integer variables $a_{ij}$, where $i$ denotes the row number and has the values of $0\ldots n$ and $j$ denotes the collumns and has the values $1\ldots m$.  Now we can express the requirement that the initial values for the $a_i$'s has to be equal to $i$:
+\indent In our setting $m$ has the value of 8 and $A$ has the value 157. For this program we use a $n \cdot m$ matrix, where the rows $n$ are the amount of steps + 1 and the columns $m$ are the number of variables in the setting. So now we introduce $n \cdot m$ integer variables $a_{ij}$, where $i$ denotes the row number and has the values of $0\ldots n$ and $j$ denotes the columns and has the values $1\ldots m$.  Now we can express the requirement that the initial values for the $a_i$'s has to be equal to $i$:
 \[\bigwedge_{j=1}^{m} a_{0j} = j \]
-Now we can discuss the step phase. For every step phase only 1 of the variables can change according to the rule $a_i := a_{i-1} + a_{i+1}$. This means that all the values have to be checked to be the same:
-\textbf{TODO Formule hier invullen en uitleggen hoe we het java programma gebruiken. Ramon kan jij dit doen?}
+Now we can discuss the step phase. For every step phase only 1 of the variables can change according to the rule $a_i := a_{i-1} + a_{i+1}$. This means that all the other values have to be checked to be the equal to the previous line.
 In the last step we have to check if one of the variables has the value A:
-\[\bigvee_{j=1}^{m} a_{nj} = A \]
-\noindent These formulas are expressed in SMT syntax and that gives us:
+\[\bigvee_{j=1}^{m} a_{nj} = A \] \\
+
+Initially, we were planning on using several forall clauses in the Yices program to solve this problem.
+Changing several input variables, such as the maximum number of steps, the number of values in a line, or the searchvalue, could then be set in the first few lines.
+However, it turns out that Yices does not do all to well with these, and it either crashed, or took 1+ hours, even in testcases with at most 2 steps.
+Instead, we devised a standard format that every program will adhere to, which solves the problem.
+We then wrote a java program that takes as input a maximum number of steps, the length of a single line $(>=3)$, the searchvalue, and the path to the output file.
+The java program would then produce a program that can be solves using Yices, to see if the stated problem is satisfiable.
+So the question for the program is: can the given searchvalue be found in exactly the given number of steps, with a given line length.
+We started by running the java program with 1, producing output, and testing it in Yices.
+Up to 9, Yices would give unsat, but when we reached 10, Yices produced an output. \\
+
+The standard format is as follows: \\
+First, we define the matrix, which is a 3d array, denoting a line for each step.
+The first line does not count as a step, it is the initial line, line 0.
+So, we assert for each value in the line (note, this is dependant in the line size), that the value is equal to its index in the line. \\
+Next, we enter the step phase.
+Here, we need to model every possible step for every possible line.
+Say that we have a line length of $n$.
+Since the outer most values cannot change, we need to produce $n - 2$ possibilities for every step.
+Every possibility is built as follows: a single value is calculated from its 2 surrounding values from the previous row, and the rest of the values are equal to those of the previous row.
+So for every step, there is a giant (or), denoting all possibilities, and inside this or is a giant (and), denoting the values for all possibilities. \\
+Finally, we enter the checking phase, where for every value in the final line, it is checked if it equals the searchvalue. Then a (check) is appended, such that Yices will run the program.\\
+
+In our instance, the line size is 8, the searchvalue is 157, and the number of steps we found such that the program produces sat was 10.
+Below, you will find the Yices program that our java program generated.
 
 {\footnotesize
 \begin{verbatim}
 (define matrix::(-> int int int))
 
-;;Chech the initial values
+;;Check the initial values
 (assert (= (matrix 0 1) 1))
 (assert (= (matrix 0 2) 2))
 (assert (= (matrix 0 3) 3))
@@ -484,10 +507,27 @@ In the last step we have to check if one of the variables has the value A:
 (= (matrix 1 7) (matrix 0 7))
 (= (matrix 1 8) (matrix 0 8))
 )
+(and
+(= (matrix 1 1) (matrix 0 1))
+(= (matrix 1 2) (matrix 0 2))
+(= (matrix 1 3) (matrix 0 3))
+(= (matrix 1 4) (matrix 0 4))
+(= (matrix 1 5) (matrix 0 5))
+(= (matrix 1 6) (matrix 0 6))
+(= (matrix 1 7) (+ (matrix 0 6) (matrix 0 8)))
+(= (matrix 1 8) (matrix 0 8))
+)
+))
 \end{verbatim}
 $\vdots$
 $\vdots$
 \begin{verbatim}
+(assert (or
+\end{verbatim}
+$\vdots$
+$\vdots$
+\begin{verbatim}
+
 (and
 (= (matrix 10 1) (matrix 9 1))
 (= (matrix 10 2) (matrix 9 2))
@@ -534,7 +574,7 @@ within half a minute:
 (= (matrix 0 1) 1)
 (= (matrix 0 2) 2)
 (= (matrix 0 3) 3)
-\end{verbatim} 
+\end{verbatim}
 $\vdots$
 }
 
@@ -545,7 +585,7 @@ $\vdots$
 Steps	& $a_1$	& $a_2$	& $a_3$ & $a_4$ & $a_5$	& $a_6$	& $a_7$ & $a_8$\\
 \hline
 $0$	& 1	&	2	&	3 & 4	&	5	&	6 & 7 & 8\\
-$1$	& 1	&	2	&	3 & 4	&	5	&	6 & 11 & 8\\
+$1$	& 1	&	2	&	3 & 4	&	5	&	6 & 14 & 8\\
 $2$	& 1	&	2	&	3 & 4	&	5	&	19 & 14 & 8\\
 $3$	& 1	&	2	&	3 & 4	&	23	&	19& 14 & 8\\
 $4$	& 1	&	2	&	3 & 4	&	23	&	37 & 14 & 8\\
@@ -560,19 +600,13 @@ $10$	& 1	&	2	&	3 & 102	&	157	&	55 & 14 & 8\\
 
 \vspace{3mm}
 
-Now you can easily check all the requirements of this problem with this table and you see that they are all met. The total running time for all of these jobs is 59. Now if we run the program with maxTime $\leq$ 58 we get unsat and therefore the minimum total running time for these requirements is 59.
+Now you can easily check all the requirements of this problem with this table and you see that the solution is found in 10 steps. Now if we run the program with at most 9 steps, we get unsat and therefore the minimum number of steps required in the case specified above is 10.
 
 \vspace{3mm}
 
-{\bf Remark:} 
+{\bf Generalization:}
 
-The formula gives unknown instead of sat. This is due to the forall function in yices. This is a known problem.\\
-
-\vspace{3mm}
-
-{\bf Generalization:} 
-
-Though it is hard to generalize the whole problem, it is not hard to adapt the program quickly to other amount of jobs. The only thing that needs to be done is to add clauses for the new jobs to the set of clauses regarding only specified jobs.\\
+Though the problem is not very complex, writing out lines as we did above takes a huge amount of time. As such, we created a java program that produces the output for us, after giving it the basic input values. The full explanation on how the java program works is given above.\\
 
 \vspace{3mm}
 \end{document}
