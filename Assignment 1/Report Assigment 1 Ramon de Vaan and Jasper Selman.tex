@@ -41,19 +41,19 @@ Moreover prittles and crottles are not allowed to be in the same truck. Only two
 \subsection*{Solution:}
 We generalize this problem by loading $n$ Trucks with $k$ different types of pallets. Each truck $t_i$, with $1 \leq i \leq n$, has a maximum weight of $mw_i$ and a maximum capacity of $mc_i$ pallets. Each pallettype $pt_j$, with $1 \leq j \leq k$, has a weight of $w_j$ and an required amount of $n_j$ pallets delivered of that type. We also have $s \leq n$ trucks which are allowed to carry pallets of the type skipples.
 
-For doing so, we introduce $n \cdot k$ variables $z_{ij}$, where $1 \leq i \leq n$ and $1 \leq j \leq k$. $z_{ij}$ denotes the number of pallets of type $pt_j$ that are loaded in truck $t_i$. Now that we have this matrix and we know how it is represented we can express the formulas for the problem.
+For doing so, we introduce a variable $z_{ij}$, where $1 \leq i \leq n$ and $1 \leq j \leq k$. $z_{ij}$ denotes the number of pallets of type $pt_j$ that are loaded in truck $t_i$. Now that we have this matrix and we know how it is represented we can express the formulas for the problem.
 \\
 \\
-Each pallettype $k_j$ has $n_j$ pallets:
-\[\bigwedge_{j=1}^{k} \Sigma_{i=1}^{n} \ z_{ij} = n_j\]
+Each pallettype $pt_j$ has $n_j$ pallets:
+\[\bigwedge_{j=1}^{k} \Sigma_{i=1}^{n} \ p_{ij} = n_j\]
 Each truck $t_i$ has a maximum weight of $mw_i$:
-\[\bigwedge_{i=1}^{n} \Sigma_{j=1}^{k} \ z_{ij} \cdot w_j \leq mw_i\]
+\[\bigwedge_{i=1}^{n} \Sigma_{j=1}^{k} \ p_{ij} \cdot w_j \leq mw_i\]
 Each truck $t_i$ has a maximum capacity of $mc_i$:
-\[\bigwedge_{i=1}^{n} \Sigma_{j=1}^{k} \ z_{ij}\leq mc_i\]
-There are no more than $s$ trucks that carry type $k_3$ (the skipples). Since all the trucks are indistinguishable we can say we only put pallets of type $k_3$ in truck $t_1 \cdots t_s$, and then have all the other trucks $t_{s+1} \cdots t_n$ carry 0 pallets of type $k_3$. This gives us:
-\[\bigwedge \Sigma_{i=s + 1}^{n} k_{i3} = 0\]
-No truck $t_i$ can carry both type $k2$ and $k4$ (the prittles and the crotlles):
-\[\bigwedge_{i=1}^{n} k_{i2} = 0 \vee p_{k4} = 0 \]
+\[\bigwedge_{i=1}^{n} \Sigma_{j=1}^{pt} \ p_{ij}\leq mc_i\]
+There are no more than $s$ trucks that carry type $pt_3$ (the skipples). Since all the trucks are indistinguishable we can say we only put pallets of type $pt_3$ in truck $t_1 \cdots t_s$, and then have all the other trucks $t_{s+1} \cdots t_n$ carry 0 pallets of type $pt_3$. This gives us:
+\[\bigwedge \Sigma_{i=s + 1}^{n} p_{i3} = 0\]
+No truck $t_i$ can carry both type $pt2$ and $pt4$ (the prittles and the crotlles):
+\[\bigwedge_{i=1}^{n} p_{i2} = 0 \vee p_{i4} = 0 \]
 Now if we express these formulas in SMT syntax and use the values of the particular problem stated above for all the variables, we get the following program:
 
 {\footnotesize
