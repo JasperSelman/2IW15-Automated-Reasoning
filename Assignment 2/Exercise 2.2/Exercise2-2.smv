@@ -1,0 +1,39 @@
+MODULE main
+VAR
+a : 0..120;
+b : 0..120;
+c : 0..200;
+t : 0..300; -- Represents the Truck with maximum capacity of 300
+Restock : 0..300; -- Represents how much can be restocked
+City : 0..3;  -- City is where the Truck is located, with S = 0, A = 1, B = 2 and C = 3
+INIT
+a = 50 & b = 40 & c = 150 & t = 300 & City = 0;
+TRANS
+-- Truck is in S
+case 	City = 0 : 	(next(City) = 1 & next(a) = a  -  29 & next(b) = b  -  29 & next(c) = c  -  29 & next(t) = t + Restock) | 
+					(next(City) = 2 & next(a) = a  -  21 & next(b) = b  -  21 & next(c) = c  -  21 & next(t) = t + Restock); 
+-- Truck is in A
+		City = 1 : 	(next(City) = 0 & next(a) = a  + Restock - 29 & next(b) = b  -  29 & next(c) = c  -  29 & next(t) = t - Restock) |
+					(next(City) = 2 & next(a) = a  + Restock - 17 & next(b) = b  -  17 & next(c) = c  -  17 & next(t) = t - Restock) |
+					(next(City) = 3 & next(a) = a  + Restock - 32 & next(b) = b  -  32 & next(c) = c  -  32 & next(t) = t - Restock);		
+-- Truck is in B
+		City = 2 : 	(next(City) = 0 & next(a) = a  -  21 & next(b) = b  +  Restock - 21 & next(c) = c  -  21 & next(t) = t - Restock) |
+					(next(City) = 1 & next(a) = a  -  17 & next(b) = b  +  Restock - 17 & next(c) = c  -  17 & next(t) = t - Restock) |
+					(next(City) = 3 & next(a) = a  -  37 & next(b) = b  +  Restock - 37 & next(c) = c  -  37 & next(t) = t - Restock);		
+-- Truck is in C
+		City = 3 : 	(next(City) = 1 & next(a) = a  -  32 & next(b) = b  -  32 & next(c) = c  +  Restock - 32 & next(t) = t - Restock) |
+					(next(City) = 2 & next(a) = a  -  37 & next(b) = b  -  37 & next(c) = c  +  Restock - 37 & next(t) = t - Restock); esac
+
+-- We state that all the cities are reachable and that there is a path such that all the cities stay supplied
+CTLSPEC (
+		(AG EF (City = 1)) 
+		& (AG EF (City = 2)) 
+		& (AG EF (City = 3))
+		) 
+		& EF(a >= 0 & a <= 120 
+			& b >= 0 & b <= 120 
+			& c >= 0 & c <= 200 
+			& t >= 0 & t <= 300 
+			& Restock >= 0 & Restock <= 300
+		);
+
