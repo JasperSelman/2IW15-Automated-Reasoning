@@ -41,6 +41,56 @@ Now we can just check for each row whether the last column contains the value 99
 
 {\footnotesize
 \begin{verbatim}
+(define matrix::(-> int int int))
+
+(assert (= (matrix 0 0) 0))
+(assert (= (matrix 0 1) 0))
+(assert (= (matrix 0 2) 0))
+(assert (= (matrix 0 3) 0))
+(assert (= (matrix 0 4) 1))
+
+
+(assert (or
+(and
+(= (matrix 1 0) (mod (+ (matrix 0 0) 1) 3))
+(= (matrix 1 1) (matrix 0 1))
+(= (matrix 1 2) (if (= (matrix 0 0) 0)(matrix 0 4) (if (= (matrix 0 0) 1)(+ (matrix 0 4) (matrix 0 2))(matrix 0 2))))
+(= (matrix 1 3) (matrix 0 3))
+(= (matrix 1 4) (if (= (matrix 0 0) 2)(matrix 0 2) (matrix 0 4)))
+)
+(and
+(= (matrix 1 0) (matrix 0 0))
+(= (matrix 1 1) (mod (+ (matrix 0 1) 1) 3))
+(= (matrix 1 2) (matrix 0 2))
+(= (matrix 1 3) (if (= (matrix 0 1) 0)(matrix 0 4) (if (= (matrix 0 1) 1)(+ (matrix 0 4) (matrix 0 3))(matrix 0 3))))
+(= (matrix 1 4) (if (= (matrix 0 1) 2)(matrix 0 3) (matrix 0 4)))
+)
+))
+
+\end{verbatim}
+$\cdots \cdots$
+\begin{verbatim}
+(assert (or
+(and
+(= (matrix 24 0) (mod (+ (matrix 23 0) 1) 3))
+(= (matrix 24 1) (matrix 23 1))
+(= (matrix 24 2) (if (= (matrix 23 0) 0)(matrix 23 4) (if (= (matrix 23 0) 1)(+ (matrix 23 4) (matrix 23 2))(matrix 23 2))))
+(= (matrix 24 3) (matrix 23 3))
+(= (matrix 24 4) (if (= (matrix 23 0) 2)(matrix 23 2) (matrix 23 4)))
+)
+(and
+(= (matrix 24 0) (matrix 23 0))
+(= (matrix 24 1) (mod (+ (matrix 23 1) 1) 3))
+(= (matrix 24 2) (matrix 23 2))
+(= (matrix 24 3) (if (= (matrix 23 1) 0)(matrix 23 4) (if (= (matrix 23 1) 1)(+ (matrix 23 4) (matrix 23 3))(matrix 23 3))))
+(= (matrix 24 4) (if (= (matrix 23 1) 2)(matrix 23 3) (matrix 23 4)))
+)
+))
+
+
+(assert (= (matrix 24 4)99))
+
+(check)
 
 \end{verbatim}
 }
@@ -50,12 +100,11 @@ within a fraction of a second:
 
 {\footnotesize
 \begin{verbatim}
-
+sat 
+1 1 0 1 0 0 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0
 \end{verbatim}
 
-$\cdots \cdots$ }.
-
-\noindent When we put all these values for $x_1$, $x_2$ and $c$ in a table together with the counters for each process we get the following table.\\
+\noindent These 0's and 1's are steps of the process which will be taken. When we translate this into the real steps and put all these values for $x_1$, $x_2$ and $c$ in a table together with the counters for each process we get the following table.\\
 \\
 \begin{center}
 \begin{tabular}{| l | l | l | l | l |}
@@ -63,36 +112,36 @@ $\cdots \cdots$ }.
 Counter $x_1$	& Counter $x_2$	& $x_1$	& $x_2$	& $c$	\\
 \hline
 0 	& 0	&	0	&	0	&	1	\\
-1 	& 0	&	1	&	0	&	1	\\
-2	& 0	&	2	&	0	&	1	\\
-2 	& 1	&	2	&	1	&	1	\\
-0 	& 1	&	2	&	1	&	2	\\
-1	& 1	&	2	&	1	&	2	\\
-2 	& 1	&	4	&	1	&	2	\\
-0 	& 1	&	4	&	1	&	4	\\
-1	& 1	&	4	&	1	&	4	\\
-2 	& 1	&	8	&	1	&	4	\\
-0 	& 1	&	8	&	1	&	8	\\
-1	& 1	&	8	&	1	&	8	\\
-2 	& 1	&	16	&	1	&	8	\\
-0 	& 1	&	16	&	1	&	16	\\
-1 	& 1	&	16	&	1	&	16	\\
-2	& 1	&	32	&	1	&	16	\\
-0 	& 1	&	32	&	1	&	32	\\
-0 	& 2	&	32	&	33	&	32	\\
-0 	& 0	&	32	&	33	&	32	\\
-1 	& 0	&	33	&	33	&	33	\\
-2	& 0	&	66	&	33	&	33	\\
-2	& 1	&	66	&	33	&	33	\\
-0	& 1	&	66	&	33	&	66	\\
-0 	& 2	&	66	&	99	&	66	\\
-0 	& 0	&	66	&	99	&	99	\\
+0 	& 1	&	0	&	1	&	1	\\
+0	& 2	&	0	&	2	&	1	\\
+1 	& 2	&	1	&	2	&	1	\\
+1 	& 0	&	1	&	2	&	2	\\
+2	& 0	&	3	&	2	&	2	\\
+0 	& 0	&	3	&	2	&	3	\\
+0 	& 1	&	3	&	3	&	3	\\
+0	& 2	&	3	&	6	&	3	\\
+1 	& 2	&	3	&	6	&	3	\\
+1 	& 0	&	3	&	6	&	6	\\
+1	& 1	&	3	&	6	&	6	\\
+1 	& 2	&	3	&	12	&	6	\\
+1 	& 0	&	3	&	12	&	12	\\
+1 	& 1	&	3	&	12	&	12	\\
+1	& 2	&	3	&	24	&	12	\\
+1 	& 0	&	3	&	24	&	24	\\
+1 	& 1	&	3	&	24	&	24	\\
+1 	& 2	&	3	&	48	&	24	\\
+1 	& 0	&	3	&	48	&	48	\\
+1	& 1	&	3	&	48	&	48	\\
+1	& 2	&	3	&	96	&	48	\\
+1	& 0	&	3	&	96	&	96	\\
+2 	& 0	&	99	&	96	&	96	\\
+0 	& 0	&	99	&	96	&	99	\\
 \hline
 \end{tabular}
 \end{center}
 \vspace{3mm}
 
-\noindent As you can see in the table all of the requirements are met. When you look at the counter, you see that the steps in each process are executed in order and  after 24 steps $c$ reaches the value of 99.
+\noindent As you can see in the table all of the requirements are met. When you look at the counter, you see that the steps in each process are executed in order and  after 24 steps $c$ reaches the value of 99. When we run the same program with 23 steps instead of 24 $c$ never reaches the value $99$.
 
 \vspace{3mm}
 
