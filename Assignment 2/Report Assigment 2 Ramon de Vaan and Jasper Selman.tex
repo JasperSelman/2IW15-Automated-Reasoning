@@ -1,0 +1,266 @@
+\documentclass[12pt]{article}
+\usepackage{a4wide}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{epic}
+\usepackage{graphicx}
+\pagestyle{empty}
+\newcommand{\tr}{\mbox{\sf true}}
+\newcommand{\fa}{\mbox{\sf false}}
+\newcommand{\bimp}{\leftrightarrow}
+
+
+\begin{document}
+\begin{center}
+\section*{Report 2 Automated Reasoning 2IW15 }
+\end{center}
+\begin{center}
+\begin{tabular}{c c}
+Jasper Selman & Ramon de Vaan\\
+0741516 & 0758873\\
+{\tt j.w.m.selman@tue.nl} & {\tt r.d.vaan@student.tue.nl}
+\end{tabular}
+\end{center}
+
+\vspace{8mm}
+
+\subsection*{Problem 1: Parallel processes}
+
+Let P be the process \textbf{while true do} \textit{\{x := c; x := x + c; c := x\}}. Starting with $c = 1$ the next values obtained for $c$ are the powers of 2. Next consider the parallel composition $P||P$ in whih $x$ is a local variable and $c$ is a global variable, that is, $P||P$ has three variables $X_1, X_2$ and $c$, where the repetitions of \textit{\{$x_1$ := c; $x_1$ := $x_1$ + c; c := $x_1$\}} and \textit{\{$x_2$ := c;  $x_2$ :=  $x_2$ + c; c := $x_2$\}} are executed in parallel, in a way where the choices between the possible steps are taken nondeterministically. For instance, when starting by first two steps of the second process, then two steps of the first and then two steps of the second the execution starts in
+\[x_2 := c;  x_2 :=  x_2 + c; x_1 := c; x_1 := x_1 + c; c := x_2; x_2 := c;\]
+and when starting  by first one step of the first process, then two steps of the second and then three of the first the execution starts in
+\[x_1 := c; x_2 := c; x_2 :=  x_2 + c;  x_1 := x_1 + c; c := x_1; x_1 := c;\]
+Show that it is possible that executing $P||P$ starting from $c = 1$ may reach $c = 99$, and give the consecutive values of the variable $c$ before this value $c = 99$ is reached.
+
+\vspace{5mm}
+
+\subsection*{Solution:}
+For we generalized this problem to instead of having 2 parallel processes we had $n$ parallel processes. After that we created a matrix of $M$ with $n+1$ columns. The first $n$ columns contain the variables $x_j$ for each parallel process $j$. The final column contains the global variable $c$. All the parallel processes contain the same three steps defined int he problem statement. Now the rows contain the current values for each variable and we know that for each row $i$ the values for all the variables except one have to be the same as for row $i+1$ since a step in a process only changes 1 variable at  a time. 
+Now we can just check for each row whether the last column contains the value 99. If it is lower than 99 we can simply choose nondeterministic a process and do the next step of that process. When all the variables have a value larger than 99 we know that we have chosen the wrong path and the program starts over with a different sequence. \\
+ We created a SMT generator in java which generated the SMT file which does this for us and that program is given below, in this case the number of processes is 2. For simplicity we also added counters for each process to keep track of which steps is done next.
+
+{\footnotesize
+\begin{verbatim}
+
+\end{verbatim}
+}
+
+\noindent Applying {\tt yices -e Exercise2-1.smt} yields the following result
+within a fraction of a second:
+
+{\footnotesize
+\begin{verbatim}
+
+\end{verbatim}
+
+$\cdots \cdots$ }.
+
+\noindent When we put all these values for $x_1$, $x_2$ and $c$ in a table together with the counters for each process we get the following table.\\
+\\
+\begin{center}
+\begin{tabular}{| l | l | l | l | l |}
+\hline
+Counter $x_1$	& Counter $x_2$	& $x_1$	& $x_2$	& $c$	\\
+\hline
+0 	& 0	&	0	&	0	&	1	\\
+1 	& 0	&	1	&	0	&	1	\\
+2	& 0	&	2	&	0	&	1	\\
+2 	& 1	&	2	&	1	&	1	\\
+0 	& 1	&	2	&	1	&	2	\\
+1	& 1	&	2	&	1	&	2	\\
+2 	& 1	&	4	&	1	&	2	\\
+0 	& 1	&	4	&	1	&	4	\\
+1	& 1	&	4	&	1	&	4	\\
+2 	& 1	&	8	&	1	&	4	\\
+0 	& 1	&	8	&	1	&	8	\\
+1	& 1	&	8	&	1	&	8	\\
+2 	& 1	&	16	&	1	&	8	\\
+0 	& 1	&	16	&	1	&	16	\\
+1 	& 1	&	16	&	1	&	16	\\
+2	& 1	&	32	&	1	&	16	\\
+0 	& 1	&	32	&	1	&	32	\\
+0 	& 2	&	32	&	33	&	32	\\
+0 	& 0	&	32	&	33	&	32	\\
+1 	& 0	&	33	&	33	&	33	\\
+2	& 0	&	66	&	33	&	33	\\
+2	& 1	&	66	&	33	&	33	\\
+0	& 1	&	66	&	33	&	66	\\
+0 	& 2	&	66	&	99	&	66	\\
+0 	& 0	&	66	&	99	&	99	\\
+\hline
+\end{tabular}
+\end{center}
+\vspace{3mm}
+
+\noindent As you can see in the table all of the requirements are met. When you look at the counter, you see that the steps in each process are executed in order and  after 24 steps $c$ reaches the value of 99.
+
+\vspace{3mm}
+
+\noindent {\bf Remark:}
+
+\noindent When you choose for a high value of $c$ and more processes the running time of the SMT program becomes very slow, when you add a process the number of possible states grows exponential with a power of 2. When $c$ becomes a higher value the number of states also increase a lot and this causes yices to become very slow.
+
+\vspace{3mm}
+
+\subsection*{Problem 2: Restocking villages}
+
+Three non-self-supporting villages, $A$, $B$ and $C$ in the middle of nowhere consume one food package each per time unit. The required food packages are delivered by a truck, having a capacity of 300 food packages. The locations of the villages are given in the following picture, in which the numbers indicate the distance, more precisely, the number of time units the truck needs to travel from one village to another, including loading or delivering. The truck has to pick up its food packages at location $S$ containing an unbounded supply. The villages only have a limited capacity to store food packages: for $A$ and $B$ this capacity is 120, for $C$ it is 200. Initially, the truck is in $S$ and is fully loaded, and in $A, B$ and $C$ there are 50, 40 and 150 food packages, respectively.
+
+\begin{figure}[h!]
+      \begin{center}
+      \includegraphics[]{Graph}
+      \end{center}
+      \label{fi:graph}
+\end{figure}
+\noindent \textbf{(a)} Show that it is impossible to deliver food packages in such a way that forever each of the villages may consume one food package each per time unit.\\
+\textbf{(b)} Show that this is possible if the capacity of the truck is increased to 320 food packages. (Note that a finite graph contains an infinite path starting in a node $v$ if and only if there is a path from $v$ to a node $w$ for which there is a non-empty path from $w$ to itself.) \\
+\textbf{(c)} Figure out whether it is possible if the capacity of the truck is set to 318.
+\vspace{8mm}
+
+\subsection*{Solution:}
+
+
+\noindent These formulas are expressed in SMT syntax and that gives us:
+
+{\footnotesize
+\begin{verbatim}
+
+\end{verbatim}
+}
+
+\noindent Applying {\tt yices -e Exercise1-3.smt} yields the following result
+within a fraction of a second:
+
+{\footnotesize
+
+
+
+$\cdots \cdots$ }.
+
+\noindent Now if we put all these times in a table, we get the following table:\\
+\\
+\begin{tabular}{| l | l | l | l |}
+\hline
+Job	& Starttime	& Endtime	& Duration\\
+\hline
+$j_1$	& 0	&	6	&	6\\
+$j_2$	& 0	&	7	&	7\\
+$j_3$	& 7	&	15	&	8\\
+$j_4$	& 0	&	9	&	9\\
+$j_5$	& 15	&	25	&	10\\
+$j_6$	& 7	&	18	&	11\\
+$j_7$	& 47	&	59	&	12\\
+$j_8$	& 15	&	28	&	13\\
+$j_9$	& 28	&	42	&	14\\
+$j_{10}$	& 0	&	15	&	15\\
+$j_{11}$	& 16	&	32	&	16\\
+$j_{12}$	& 42	&	59	&	17\\
+\hline
+All jobs	&	0	&	59	&	59\\
+\hline
+\end{tabular}
+
+\vspace{3mm}
+
+Now you can easily check all the requirements of this problem with this table and you see that they are all met. The total running time for all of these jobs is 59. Now if we run the program with maxTime $\leq$ 58 we get unsat and therefore the minimum total running time for these requirements is 59.
+
+\vspace{3mm}
+
+{\bf Remark:}
+
+The formula gives unknown instead of sat. This is due to the forall function in yices. This is a known problem.\\
+
+\vspace{3mm}
+
+{\bf Generalization:}
+
+Though it is hard to generalize the whole problem, it is not hard to adapt the program quickly to other amount of jobs. The only thing that needs to be done is to add clauses for the new jobs to the set of clauses regarding only specified jobs.\\
+
+\vspace{3mm}
+
+\subsection*{Problem 4: Choose your own non-trivial problem}
+
+For our own non-trivial problem we have chosen for the room square problem. The Room square is an $n \cdot n$ matrix filled with $n+1$ different symbols in such a way that:\\
+\begin{itemize}
+\item Each cell of the matrix is either empty or contains an unordered pair from the set of symbols
+\item Each symbol occurs exactly once in each row and column of the matrix
+\item Every unordered pair of symbols occurs in exactly one cell of the matrix
+\end{itemize}
+The exercise is to find the Room square for $n = 13$. Note that Room squares only exist when $n$ is odd and larger than 5.
+\vspace{8mm}
+
+\subsection*{Solution:}
+We can generalize this solution in such a way that we have $n^2$ pairs of integer variables $p_{i,j}, q_{i,j}$ for $i,j = 1, \ldots, n$, where for every $i,j = 1, \ldots, n$ the values $p_{i,j}$ and $q_{i,j}$ will either be both 0 when the cell is not occupied or both be larger than 0 and distinct. So for example is cell (6,8) contains the numbers 1 and 3 we have that $p_{6,8} = 1$ and  $q_{6,8} = 3$ or  $p_{6,8} = 3$ and  $q_{6,8} = 1$. We also define the set of symbols $S$ such that $x,y \in S$ and $x,y = 1, \ldots, n+1$.\\
+Since the solution of the Square room has some restrictions we have to create expressions for these constrictions. The first constriction is that a Square room has to be of odd number of rows and columns and bigger than 5. This gives the formula: $(n \ mod \ 2 = 1) \wedge n \geq 7$.\\
+The second constriction is that each cell of the matrix is either empty or contains an unordered pair from the set of symbols. This gives us:
+\[\bigwedge_{i=1}^{n} \bigwedge_{j=1}^{n} (p_{i,j} = 0 \wedge q_{i,j} = 0) \vee (p_{i,j} = x \wedge q_{i,j} = y \wedge x \neq y)\]
+We don't have to add the case $(p_{i,j} = y \wedge q_{i,j} = x \wedge x \neq y)$ for unordered pairs because we can just swap the values of $x$ and $y$ to do this.\\
+The next constraint is that each symbol occurs exactly one in each row and column of the matrix. There is a simple way to check this. For every column and row the sum of the integers in this case has to be equal to the sum of $S$ and no two the same elements can occur in a row or column. We can translate this in the following formula for rows:
+\[\bigwedge_{i=1}^{n} (\sum_{j=1}^{n} (p_{i,j} + q_{i,j}) = \sum_{x=1}^{n+1} x) \wedge (\bigwedge_{j,k: 1\leq j < k \leq n} (p_{i,j} \neq q_{i,j} \wedge p_{i,j} \neq q_{i,k} \wedge q_{i,j} \neq q_{i,k})\]
+The next formula is for the columns:
+\[\bigwedge_{j=1}^{n} (\sum_{i=1}^{n} (p_{i,j} + q_{i,j}) = \sum_{x=1}^{n+1} x) \wedge (\bigwedge_{i,k: 1\leq i < k \leq n} (p_{i,j} \neq q_{i,j} \wedge p_{i,j} \neq q_{k,j} \wedge q_{i,j} \neq q_{k,j})\]
+Now the last constraint is left. That is that every unordered pair of symbols occurs exactly once in the matrix. This gives the following formula:
+\[\bigwedge_{x=1}^{n+1} \bigwedge_{y=x+1}^{n+1} ( \bigvee_{i=1}^{n} \bigvee_{j,k = 1 \leq j < k \leq n} (p_{i,j} = x \wedge q_{i,j} = y) \wedge \neg (p_{i,k} = x \wedge q_{i,k} = y)  \wedge \]
+\[ \bigvee_{j=1}^{n} \bigvee_{i,k = 1 \leq i < k \leq n} (p_{i,j} = x \wedge q_{i,j} = y) \wedge \neg (p_{k,j} = x \wedge q_{k,j} = y) \]
+If we put this all in a smt generator for this problem we get the following smt file
+TODO RESULT WANNEER AF
+
+{\footnotesize
+\begin{verbatim}
+
+\end{verbatim}
+$\vdots$
+$\vdots$
+\begin{verbatim}
+(assert (or
+\end{verbatim}
+$\vdots$
+$\vdots$
+\begin{verbatim}
+
+\end{verbatim}
+}
+
+\noindent Applying {\tt yices -e Exercise2-4.smt} yields the following result:
+
+{\footnotesize
+\begin{verbatim}
+(= (matrix 0 1) 1)
+(= (matrix 0 2) 2)
+(= (matrix 0 3) 3)
+\end{verbatim}
+$\vdots$
+}
+
+\noindent Now if we put all these values in a table, we get the following table:\\
+\\
+\begin{tabular}{| l | l | l | l | l | l | l | l | l |}
+\hline
+Steps	& $a_1$	& $a_2$	& $a_3$ & $a_4$ & $a_5$	& $a_6$	& $a_7$ & $a_8$\\
+\hline
+$0$	& 1	&	2	&	3 & 4	&	5	&	6 & 7 & 8\\
+$1$	& 1	&	2	&	3 & 4	&	5	&	6 & 14 & 8\\
+$2$	& 1	&	2	&	3 & 4	&	5	&	19 & 14 & 8\\
+$3$	& 1	&	2	&	3 & 4	&	23	&	19& 14 & 8\\
+$4$	& 1	&	2	&	3 & 4	&	23	&	37 & 14 & 8\\
+$5$	& 1	&	2	&	3 & 4	&	41	&	37 & 14 & 8\\
+$6$	& 1	&	2	&	3 & 4	&	41	&	55 & 14 & 8\\
+$7$	& 1	&	2	&	3 & 44	&	41	&	55 & 14 & 8\\
+$8$	& 1	&	2	&	3 & 44	&	99	&	55 & 14 & 8\\
+$9$	& 1	&	2	&	3 & 102	&	99	&	55 & 14 & 8\\
+$10$	& 1	&	2	&	3 & 102	&	157	&	55 & 14 & 8\\
+\hline
+\end{tabular}
+
+\vspace{3mm}
+
+Now you can easily check all the requirements of this problem with this table and you see that the solution is found in 10 steps. Now if we run the program with at most 9 steps, we get unsat and therefore the minimum number of steps required in the case specified above is 10.
+
+\vspace{3mm}
+
+{\bf Generalization:}
+
+Though the problem is not very complex, writing out lines as we did above takes a huge amount of time. As such, we created a java program that produces the output for us, after giving it the basic input values. The full explanation on how the java program works is given above.\\
+
+\vspace{3mm}
+\end{document}
