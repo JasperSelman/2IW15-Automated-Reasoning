@@ -262,7 +262,160 @@
 )
 ))
 
+(assert (or
+(and
+(= (matrix 16 0) (mod (+ (matrix 15 0) 1) 3))
+(= (matrix 16 1) (matrix 15 1))
+(= (matrix 16 2) (if (= (matrix 15 0) 0)(matrix 15 4) (if (= (matrix 15 0) 1)(+ (matrix 15 4) (matrix 15 2))(matrix 15 2))))
+(= (matrix 16 3) (matrix 15 3))
+(= (matrix 16 4) (if (= (matrix 15 0) 2)(matrix 15 2) (matrix 15 4)))
+)
+(and
+(= (matrix 16 0) (matrix 15 0))
+(= (matrix 16 1) (mod (+ (matrix 15 1) 1) 3))
+(= (matrix 16 2) (matrix 15 2))
+(= (matrix 16 3) (if (= (matrix 15 1) 0)(matrix 15 4) (if (= (matrix 15 1) 1)(+ (matrix 15 4) (matrix 15 3))(matrix 15 3))))
+(= (matrix 16 4) (if (= (matrix 15 1) 2)(matrix 15 3) (matrix 15 4)))
+)
+))
 
-(assert (= (matrix 15 4)99))
+(assert (or
+(and
+(= (matrix 17 0) (mod (+ (matrix 16 0) 1) 3))
+(= (matrix 17 1) (matrix 16 1))
+(= (matrix 17 2) (if (= (matrix 16 0) 0)(matrix 16 4) (if (= (matrix 16 0) 1)(+ (matrix 16 4) (matrix 16 2))(matrix 16 2))))
+(= (matrix 17 3) (matrix 16 3))
+(= (matrix 17 4) (if (= (matrix 16 0) 2)(matrix 16 2) (matrix 16 4)))
+)
+(and
+(= (matrix 17 0) (matrix 16 0))
+(= (matrix 17 1) (mod (+ (matrix 16 1) 1) 3))
+(= (matrix 17 2) (matrix 16 2))
+(= (matrix 17 3) (if (= (matrix 16 1) 0)(matrix 16 4) (if (= (matrix 16 1) 1)(+ (matrix 16 4) (matrix 16 3))(matrix 16 3))))
+(= (matrix 17 4) (if (= (matrix 16 1) 2)(matrix 16 3) (matrix 16 4)))
+)
+))
+
+(assert (or
+(and
+(= (matrix 18 0) (mod (+ (matrix 17 0) 1) 3))
+(= (matrix 18 1) (matrix 17 1))
+(= (matrix 18 2) (if (= (matrix 17 0) 0)(matrix 17 4) (if (= (matrix 17 0) 1)(+ (matrix 17 4) (matrix 17 2))(matrix 17 2))))
+(= (matrix 18 3) (matrix 17 3))
+(= (matrix 18 4) (if (= (matrix 17 0) 2)(matrix 17 2) (matrix 17 4)))
+)
+(and
+(= (matrix 18 0) (matrix 17 0))
+(= (matrix 18 1) (mod (+ (matrix 17 1) 1) 3))
+(= (matrix 18 2) (matrix 17 2))
+(= (matrix 18 3) (if (= (matrix 17 1) 0)(matrix 17 4) (if (= (matrix 17 1) 1)(+ (matrix 17 4) (matrix 17 3))(matrix 17 3))))
+(= (matrix 18 4) (if (= (matrix 17 1) 2)(matrix 17 3) (matrix 17 4)))
+)
+))
+
+(assert (or
+(and
+(= (matrix 19 0) (mod (+ (matrix 18 0) 1) 3))
+(= (matrix 19 1) (matrix 18 1))
+(= (matrix 19 2) (if (= (matrix 18 0) 0)(matrix 18 4) (if (= (matrix 18 0) 1)(+ (matrix 18 4) (matrix 18 2))(matrix 18 2))))
+(= (matrix 19 3) (matrix 18 3))
+(= (matrix 19 4) (if (= (matrix 18 0) 2)(matrix 18 2) (matrix 18 4)))
+)
+(and
+(= (matrix 19 0) (matrix 18 0))
+(= (matrix 19 1) (mod (+ (matrix 18 1) 1) 3))
+(= (matrix 19 2) (matrix 18 2))
+(= (matrix 19 3) (if (= (matrix 18 1) 0)(matrix 18 4) (if (= (matrix 18 1) 1)(+ (matrix 18 4) (matrix 18 3))(matrix 18 3))))
+(= (matrix 19 4) (if (= (matrix 18 1) 2)(matrix 18 3) (matrix 18 4)))
+)
+))
+
+(assert (or
+(and
+(= (matrix 20 0) (mod (+ (matrix 19 0) 1) 3))
+(= (matrix 20 1) (matrix 19 1))
+(= (matrix 20 2) (if (= (matrix 19 0) 0)(matrix 19 4) (if (= (matrix 19 0) 1)(+ (matrix 19 4) (matrix 19 2))(matrix 19 2))))
+(= (matrix 20 3) (matrix 19 3))
+(= (matrix 20 4) (if (= (matrix 19 0) 2)(matrix 19 2) (matrix 19 4)))
+)
+(and
+(= (matrix 20 0) (matrix 19 0))
+(= (matrix 20 1) (mod (+ (matrix 19 1) 1) 3))
+(= (matrix 20 2) (matrix 19 2))
+(= (matrix 20 3) (if (= (matrix 19 1) 0)(matrix 19 4) (if (= (matrix 19 1) 1)(+ (matrix 19 4) (matrix 19 3))(matrix 19 3))))
+(= (matrix 20 4) (if (= (matrix 19 1) 2)(matrix 19 3) (matrix 19 4)))
+)
+))
+
+(assert (or
+(and
+(= (matrix 21 0) (mod (+ (matrix 20 0) 1) 3))
+(= (matrix 21 1) (matrix 20 1))
+(= (matrix 21 2) (if (= (matrix 20 0) 0)(matrix 20 4) (if (= (matrix 20 0) 1)(+ (matrix 20 4) (matrix 20 2))(matrix 20 2))))
+(= (matrix 21 3) (matrix 20 3))
+(= (matrix 21 4) (if (= (matrix 20 0) 2)(matrix 20 2) (matrix 20 4)))
+)
+(and
+(= (matrix 21 0) (matrix 20 0))
+(= (matrix 21 1) (mod (+ (matrix 20 1) 1) 3))
+(= (matrix 21 2) (matrix 20 2))
+(= (matrix 21 3) (if (= (matrix 20 1) 0)(matrix 20 4) (if (= (matrix 20 1) 1)(+ (matrix 20 4) (matrix 20 3))(matrix 20 3))))
+(= (matrix 21 4) (if (= (matrix 20 1) 2)(matrix 20 3) (matrix 20 4)))
+)
+))
+
+(assert (or
+(and
+(= (matrix 22 0) (mod (+ (matrix 21 0) 1) 3))
+(= (matrix 22 1) (matrix 21 1))
+(= (matrix 22 2) (if (= (matrix 21 0) 0)(matrix 21 4) (if (= (matrix 21 0) 1)(+ (matrix 21 4) (matrix 21 2))(matrix 21 2))))
+(= (matrix 22 3) (matrix 21 3))
+(= (matrix 22 4) (if (= (matrix 21 0) 2)(matrix 21 2) (matrix 21 4)))
+)
+(and
+(= (matrix 22 0) (matrix 21 0))
+(= (matrix 22 1) (mod (+ (matrix 21 1) 1) 3))
+(= (matrix 22 2) (matrix 21 2))
+(= (matrix 22 3) (if (= (matrix 21 1) 0)(matrix 21 4) (if (= (matrix 21 1) 1)(+ (matrix 21 4) (matrix 21 3))(matrix 21 3))))
+(= (matrix 22 4) (if (= (matrix 21 1) 2)(matrix 21 3) (matrix 21 4)))
+)
+))
+
+(assert (or
+(and
+(= (matrix 23 0) (mod (+ (matrix 22 0) 1) 3))
+(= (matrix 23 1) (matrix 22 1))
+(= (matrix 23 2) (if (= (matrix 22 0) 0)(matrix 22 4) (if (= (matrix 22 0) 1)(+ (matrix 22 4) (matrix 22 2))(matrix 22 2))))
+(= (matrix 23 3) (matrix 22 3))
+(= (matrix 23 4) (if (= (matrix 22 0) 2)(matrix 22 2) (matrix 22 4)))
+)
+(and
+(= (matrix 23 0) (matrix 22 0))
+(= (matrix 23 1) (mod (+ (matrix 22 1) 1) 3))
+(= (matrix 23 2) (matrix 22 2))
+(= (matrix 23 3) (if (= (matrix 22 1) 0)(matrix 22 4) (if (= (matrix 22 1) 1)(+ (matrix 22 4) (matrix 22 3))(matrix 22 3))))
+(= (matrix 23 4) (if (= (matrix 22 1) 2)(matrix 22 3) (matrix 22 4)))
+)
+))
+
+(assert (or
+(and
+(= (matrix 24 0) (mod (+ (matrix 23 0) 1) 3))
+(= (matrix 24 1) (matrix 23 1))
+(= (matrix 24 2) (if (= (matrix 23 0) 0)(matrix 23 4) (if (= (matrix 23 0) 1)(+ (matrix 23 4) (matrix 23 2))(matrix 23 2))))
+(= (matrix 24 3) (matrix 23 3))
+(= (matrix 24 4) (if (= (matrix 23 0) 2)(matrix 23 2) (matrix 23 4)))
+)
+(and
+(= (matrix 24 0) (matrix 23 0))
+(= (matrix 24 1) (mod (+ (matrix 23 1) 1) 3))
+(= (matrix 24 2) (matrix 23 2))
+(= (matrix 24 3) (if (= (matrix 23 1) 0)(matrix 23 4) (if (= (matrix 23 1) 1)(+ (matrix 23 4) (matrix 23 3))(matrix 23 3))))
+(= (matrix 24 4) (if (= (matrix 23 1) 2)(matrix 23 3) (matrix 23 4)))
+)
+))
+
+
+(assert (= (matrix 24 4)99))
 
 (check)
