@@ -79,6 +79,6 @@ public class Parallel {
 //        } else {
 //            System.exit(1);
 //        }
-        doPrint(2, 1, 15, 99, new File("C:\\Users\\s105365\\Documents\\GitHub\\2IW15-Automated-Reasoning\\Assignment 2\\Exercise 1\\test.smt2"));
+        doPrint(2, 1, 24, 99, new File("C:\\Users\\s105365\\Documents\\GitHub\\2IW15-Automated-Reasoning\\Assignment 2\\Exercise 1\\test.smt2"));
     }
 }
