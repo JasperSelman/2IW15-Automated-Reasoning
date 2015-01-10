@@ -46,14 +46,20 @@ public class TSP {
                     pw.println("(assert (= " + matrix(i, j) + " (- 0 1)))");
                 }
                 for(int j : nonSuppCit) {
-                    pw.println("(assert (>= " + matrix(i, j) + " " + ite("(=" + matrix(i, truckLoc) + " " + j + ")", loadDiff(i, (i - 1)), "1") + "))");
+                    pw.println("(assert (> " +matrix(i, j) + " " + "0))");
+                    pw.println("(assert (>= " + matrix(i, j) + " " + ite("(=" + matrix(i, truckLoc) + " " + j + ")", loadDiff(i - 1, i), "1") + "))");
                     pw.println("(assert (<= " + matrix(i, j) + " " + maxSupplies[j] + "))");
                     pw.println("(assert (= " + matrix(i, j) + " "
                             + "(+ " + matrix(i - 1, j) + " "
                             + negTimeDiff(i - 1, i)
-                            + ite("(=" + matrix(i, truckLoc) + " " + j + ")", loadDiff(i, (i - 1)),"0") + ")))");
+                            + ite("(=" + matrix(i, truckLoc) + " " + j + ")", loadDiff(i - 1, i),"0") + ")))");
                 }
                 pw.println("(assert (> " + dist(matrix(i - 1, truckLoc), matrix(i, truckLoc)) + " 0))");
+                pw.println("(assert (or");
+                for(int j = 0; j < numCit; j++) {
+                    pw.println("(= " + matrix(i, truckLoc) + " " + j + ")");
+                }
+                pw.println("))");
                 pw.println("(assert (>= " + matrix(i, truckLoad) + " " 
                             + ite("(< " + matrix(String.valueOf(i),matrix(i,truckLoc)) + "0)",
                                     String.valueOf(truckstartweight),"0") + "))");
@@ -141,7 +147,7 @@ public class TSP {
     }
     
     public static void main(String[] args) {
-        int steps = 40;
+        int steps = 21;
         int[][] dist = new int[][]{{0,29,21,-1},
                 {29,0,17,32},
                 {21,17,0,37},
