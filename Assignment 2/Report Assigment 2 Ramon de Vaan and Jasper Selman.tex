@@ -26,7 +26,7 @@ Jasper Selman & Ramon de Vaan\\
 
 \subsection*{Problem 1: Parallel processes}
 
-Let P be the process \textbf{while true do} \textit{\{x := c; x := x + c; c := x\}}. Starting with $c = 1$ the next values obtained for $c$ are the powers of 2. Next consider the parallel composition $P||P$ in whih $x$ is a local variable and $c$ is a global variable, that is, $P||P$ has three variables $X_1, X_2$ and $c$, where the repetitions of \textit{\{$x_1$ := c; $x_1$ := $x_1$ + c; c := $x_1$\}} and \textit{\{$x_2$ := c;  $x_2$ :=  $x_2$ + c; c := $x_2$\}} are executed in parallel, in a way where the choices between the possible steps are taken nondeterministically. For instance, when starting by first two steps of the second process, then two steps of the first and then two steps of the second the execution starts in
+Let P be the process \textbf{while true do} \textit{\{x := c; x := x + c; c := x\}}. Starting with $c = 1$ the next values obtained for $c$ are the powers of 2. Next consider the parallel composition $P||P$ in which $x$ is a local variable and $c$ is a global variable, that is, $P||P$ has three variables $X_1, X_2$ and $c$, where the repetitions of \textit{\{$x_1$ := c; $x_1$ := $x_1$ + c; c := $x_1$\}} and \textit{\{$x_2$ := c;  $x_2$ :=  $x_2$ + c; c := $x_2$\}} are executed in parallel, in a way where the choices between the possible steps are taken nondeterministically. For instance, when starting by first two steps of the second process, then two steps of the first and then two steps of the second the execution starts in
 \[x_2 := c;  x_2 :=  x_2 + c; x_1 := c; x_1 := x_1 + c; c := x_2; x_2 := c;\]
 and when starting  by first one step of the first process, then two steps of the second and then three of the first the execution starts in
 \[x_1 := c; x_2 := c; x_2 :=  x_2 + c;  x_1 := x_1 + c; c := x_1; x_1 := c;\]
@@ -37,7 +37,7 @@ Show that it is possible that executing $P||P$ starting from $c = 1$ may reach $
 \subsection*{Solution:}
 For we generalized this problem to instead of having 2 parallel processes we had $n$ parallel processes. After that we created a matrix of $M$ with $n+1$ columns. The first $n$ columns contain the variables $x_j$ for each parallel process $j$. The final column contains the global variable $c$. All the parallel processes contain the same three steps defined int he problem statement. Now the rows contain the current values for each variable and we know that for each row $i$ the values for all the variables except one have to be the same as for row $i+1$ since a step in a process only changes 1 variable at  a time. 
 Now we can just check for each row whether the last column contains the value 99. If it is lower than 99 we can simply choose nondeterministic a process and do the next step of that process. When all the variables have a value larger than 99 we know that we have chosen the wrong path and the program starts over with a different sequence. \\
- We created a SMT generator in java which generated the SMT file which does this for us and that program is given below, in this case the number of processes is 2. For simplicity we also added counters for each process to keep track of which steps is done next.
+We created a SMT generator in java which generated the SMT file which does this for us and that program is given below, in this case the number of processes is 2. For simplicity we also added counters for each process to keep track of which steps is done next.
 
 {\footnotesize
 \begin{verbatim}
@@ -166,65 +166,382 @@ Three non-self-supporting villages, $A$, $B$ and $C$ in the middle of nowhere co
 \textbf{(c)} Figure out whether it is possible if the capacity of the truck is set to 318.
 \vspace{8mm}
 
-\subsection*{Solution:}
-
-
-\noindent These formulas are expressed in SMT syntax and that gives us:
+\subsection*{Solution (a):}
+First we generalized this problem to instead of having 3 different villages which have to be restocked, we have $n$ different villages, and instead of having 1 supply village we have $m$ different supply villages. Now we create a matrix $M$ with $n+m+2$ columns. In the first $m$ columns we represent the supply villages, the next $n$ columns have the current stock of supplies for the $n$ villages and the last column contains the current load of the truck. We also have defined for all possible connections from cities how much time units it take to take this road. It is important that for every row in the matrix, only one of the cities can get a higher stock, while the other villages (and the truck) stock has to be decreased with the same amount. It is also possible that the stock of all the villages decreases and the stock of the truck increases, this means the truck is restocking supplies in $S$ in our case. To solve the problem for (a) we can just check all the rows of the matrix if one of the columns $n$ columns which represent the city ever reaches 0.\\
+We created a SMT generator in java which generated the SMT file which does this for us and that program is given below, in this case the number of villages  is 3 and the number of restock villages is 1.
 
 {\footnotesize
 \begin{verbatim}
+(define dist::(-> int int int))
+(define matrix::(-> int int int))
+
+(assert (= (dist 0 0) 0))
+(assert (= (dist 0 1) 29))
+(assert (= (dist 0 2) 21))
+(assert (= (dist 0 3) -1))
+(assert (= (dist 1 0) 29))
+(assert (= (dist 1 1) 0))
+(assert (= (dist 1 2) 17))
+(assert (= (dist 1 3) 32))
+(assert (= (dist 2 0) 21))
+(assert (= (dist 2 1) 17))
+(assert (= (dist 2 2) 0))
+(assert (= (dist 2 3) 37))
+(assert (= (dist 3 0) -1))
+(assert (= (dist 3 1) 32))
+(assert (= (dist 3 2) 37))
+(assert (= (dist 3 3) 0))
+
+(assert (= (matrix 0 0) -1))
+(assert (= (matrix 0 1) 50))
+(assert (= (matrix 0 2) 40))
+(assert (= (matrix 0 3) 150))
+(assert (= (matrix 0 4) 300))
+(assert (= (matrix 0 5) 0))
+
+(assert (= (matrix 1 0) (- 0 1)))
+(assert (> (matrix 1 1) 0))
+(assert (>= (matrix 1 1) (if (=(matrix 1 5) 1) (- (matrix 0 4) (matrix 1 4)) 1)))
+(assert (<= (matrix 1 1) 120))
+(assert (= (matrix 1 1) (+ (matrix 0 1) (- 0 (dist (matrix 0 5) (matrix 1 5)))(if (=(matrix 1 5) 1) (- (matrix 0 4) (matrix 1 4)) 0))))
+(assert (> (matrix 1 2) 0))
+(assert (>= (matrix 1 2) (if (=(matrix 1 5) 2) (- (matrix 0 4) (matrix 1 4)) 1)))
+(assert (<= (matrix 1 2) 120))
+(assert (= (matrix 1 2) (+ (matrix 0 2) (- 0 (dist (matrix 0 5) (matrix 1 5)))(if (=(matrix 1 5) 2) (- (matrix 0 4) (matrix 1 4)) 0))))
+(assert (> (matrix 1 3) 0))
+(assert (>= (matrix 1 3) (if (=(matrix 1 5) 3) (- (matrix 0 4) (matrix 1 4)) 1)))
+(assert (<= (matrix 1 3) 200))
+(assert (= (matrix 1 3) (+ (matrix 0 3) (- 0 (dist (matrix 0 5) (matrix 1 5)))(if (=(matrix 1 5) 3) (- (matrix 0 4) (matrix 1 4)) 0))))
+(assert (> (dist (matrix 0 5) (matrix 1 5)) 0))
+(assert (or
+(= (matrix 1 5) 0)
+(= (matrix 1 5) 1)
+(= (matrix 1 5) 2)
+(= (matrix 1 5) 3)
+))
+(assert (>= (matrix 1 4) (if (< (matrix 1 (matrix 1 5))0) 300 0)))
+(assert (<= (matrix 1 4) (if (< (matrix 1 (matrix 1 5))0) 300 (matrix 0 4))))
+\end{verbatim}
+$\cdots \cdots$
+\begin{verbatim}
+(assert (= (matrix 21 0) (- 0 1)))
+(assert (> (matrix 21 1) 0))
+(assert (>= (matrix 21 1) (if (=(matrix 21 5) 1) (- (matrix 20 4) (matrix 21 4)) 1)))
+(assert (<= (matrix 21 1) 120))
+(assert (= (matrix 21 1) (+ (matrix 20 1) (- 0 (dist (matrix 20 5) (matrix 21 5)))(if (=(matrix 21 5) 1) (- (matrix 20 4) (matrix 21 4)) 0))))
+(assert (> (matrix 21 2) 0))
+(assert (>= (matrix 21 2) (if (=(matrix 21 5) 2) (- (matrix 20 4) (matrix 21 4)) 1)))
+(assert (<= (matrix 21 2) 120))
+(assert (= (matrix 21 2) (+ (matrix 20 2) (- 0 (dist (matrix 20 5) (matrix 21 5)))(if (=(matrix 21 5) 2) (- (matrix 20 4) (matrix 21 4)) 0))))
+(assert (> (matrix 21 3) 0))
+(assert (>= (matrix 21 3) (if (=(matrix 21 5) 3) (- (matrix 20 4) (matrix 21 4)) 1)))
+(assert (<= (matrix 21 3) 200))
+(assert (= (matrix 21 3) (+ (matrix 20 3) (- 0 (dist (matrix 20 5) (matrix 21 5)))(if (=(matrix 21 5) 3) (- (matrix 20 4) (matrix 21 4)) 0))))
+(assert (> (dist (matrix 20 5) (matrix 21 5)) 0))
+(assert (or
+(= (matrix 21 5) 0)
+(= (matrix 21 5) 1)
+(= (matrix 21 5) 2)
+(= (matrix 21 5) 3)
+))
+(assert (>= (matrix 21 4) (if (< (matrix 21 (matrix 21 5))0) 300 0)))
+(assert (<= (matrix 21 4) (if (< (matrix 21 (matrix 21 5))0) 300 (matrix 20 4))))
+
+(check)
 
 \end{verbatim}
 }
 
-\noindent Applying {\tt yices -e Exercise1-3.smt} yields the following result
-within a fraction of a second:
-
+\noindent Applying {\tt yices -e Exercise2-2a.smt} yields the following result within a couple of seconds:
+\begin{verbatim}
 {\footnotesize
-
-
-
-$\cdots \cdots$ }.
-
-\noindent Now if we put all these times in a table, we get the following table:\\
-\\
-\begin{tabular}{| l | l | l | l |}
+sat
+(= (dist 0 0) 0)
+(= (dist 0 1) 29)
+(= (dist 0 2) 21)
+(= (dist 0 3) -1)
+\end{verbatim}
+$\cdots \cdots$ 
+\begin{verbatim}
+(= (dist 3 2) 37)
+(= (dist 3 3) 0)
+(= (matrix 0 0) -1)
+(= (matrix 0 1) 50)
+(= (matrix 0 2) 40)
+(= (matrix 0 3) 150)
+(= (matrix 0 4) 300)
+(= (matrix 0 5) 0)
+(= (matrix 1 0) -1)
+(= (matrix 1 1) 29)
+(= (matrix 1 2) 120)
+(= (matrix 1 3) 129)
+(= (matrix 1 4) 199)
+(= (matrix 1 5) 2)
+\end{verbatim}
+$\cdots \cdots$ 
+\begin{verbatim}
+(= (matrix 21 0) -1)
+(= (matrix 21 1) 1)
+(= (matrix 21 2) 6)
+(= (matrix 21 3) 5)
+(= (matrix 21 4) 0)
+(= (matrix 21 5) 2)
+}.
+\end{verbatim}
+\noindent Now if we put all these results in a table, we get the following table, where the first column denotes the stock of the supply city, the next three columns the stock of the villages, the next the load of the truck and the last column the city in which the truck is residing (0 = S, 1 = A, 2 = B 3 = C):\\
+\begin{center}
+\begin{tabular}{| l | l | l | l | l | l | l |}
 \hline
-Job	& Starttime	& Endtime	& Duration\\
+Step 	& S	& A	& B	& C 	& T 	& Location\\
 \hline
-$j_1$	& 0	&	6	&	6\\
-$j_2$	& 0	&	7	&	7\\
-$j_3$	& 7	&	15	&	8\\
-$j_4$	& 0	&	9	&	9\\
-$j_5$	& 15	&	25	&	10\\
-$j_6$	& 7	&	18	&	11\\
-$j_7$	& 47	&	59	&	12\\
-$j_8$	& 15	&	28	&	13\\
-$j_9$	& 28	&	42	&	14\\
-$j_{10}$	& 0	&	15	&	15\\
-$j_{11}$	& 16	&	32	&	16\\
-$j_{12}$	& 42	&	59	&	17\\
-\hline
-All jobs	&	0	&	59	&	59\\
+0	& 	-1	&	50	&	40 	&	150	&	300	&	0	\\
+1	& 	-1	&	29	&	120 	&	129	&	199	&	2	\\
+2	& 	-1	&	120	&	103 	&	112	&	91	&	1	\\
+3	& 	-1	&	91	&	74 	&	83	&	300	&	0	\\
+4	& 	-1	&	70	&	119 	&	62	&	234	&	2	\\
+5	& 	-1	&	33	&	82 	&	193	&	66	&	3	\\
+6	& 	-1	&	67	&	50 	&	161	&	0	&	1	\\
+7	& 	-1	&	38	&	21 	&	132	&	300	&	0	\\
+8	& 	-1	&	17	&	118 	&	111	&	182	&	2	\\
+9	& 	-1	&	120	&	101 	&	94	&	62	&	1	\\
+10	& 	-1	&	91	&	72 	&	65	&	300	&	0	\\
+11	& 	-1	&	70	&	120 	&	44	&	231	&	2	\\
+12	& 	-1	&	33	&	83 	&	165	&	73	&	3	\\
+13	& 	-1	&	74	&	51 	&	133	&	0	&	1	\\
+14	& 	-1	&	45	&	22 	&	104	&	300	&	0	\\
+15	& 	-1	&	24	&	82 	&	83	&	219	&	2	\\
+16	& 	-1	&	34	&	65 	&	66	&	192	&	1	\\
+17	& 	-1	&	17	&	100 	&	49	&	140	&	2	\\
+18	& 	-1	&	64	&	83 	&	32	&	76	&	1	\\
+19	& 	-1	&	32	&	52 	&	54	&	22	&	3	\\
+20	& 	-1	&	18	&	19 	&	22	&	4	&	1	\\
+21	& 	-1	&	1	&	6	&	5	&	0	&	2	\\
 \hline
 \end{tabular}
+\end{center}
+\vspace{3mm}
+
+\noindent As you can see at step 21 the truck is empty and the villages have all supplies smaller than 10, this means the truck has to go back from village $B$ to city $S$ and in the mean time all the villages will starve.
+\vspace{3mm}
+
+\subsection*{Solution (b):}
+For this problem we could almost use the same method as for (a). We only need a little enhancement. Instead of searching a row in the matrix where one of the villages reaches the stock of 0 we should search for a row which is exactly the same as a row before in the table, if we reach such a row we know that there is a route which the truck can take from a state $s$ such that he reaches $s$ again. This means the truck can take this route over and over again and the villages never run out of stock. Again we put this all in a SMT file and this gives us the following file:
+
+{\footnotesize
+\begin{verbatim}
+(define dist::(-> int int int))
+(define matrix::(-> int int int))
+
+(assert (= (dist 0 0) 0))
+(assert (= (dist 0 1) 29))
+(assert (= (dist 0 2) 21))
+(assert (= (dist 0 3) -1))
+(assert (= (dist 1 0) 29))
+(assert (= (dist 1 1) 0))
+(assert (= (dist 1 2) 17))
+(assert (= (dist 1 3) 32))
+(assert (= (dist 2 0) 21))
+(assert (= (dist 2 1) 17))
+(assert (= (dist 2 2) 0))
+(assert (= (dist 2 3) 37))
+(assert (= (dist 3 0) -1))
+(assert (= (dist 3 1) 32))
+(assert (= (dist 3 2) 37))
+(assert (= (dist 3 3) 0))
+
+(assert (= (matrix 0 0) -1))
+(assert (= (matrix 0 1) 50))
+(assert (= (matrix 0 2) 40))
+(assert (= (matrix 0 3) 150))
+(assert (= (matrix 0 4) 320))
+(assert (= (matrix 0 5) 0))
+
+(assert (= (matrix 1 0) (- 0 1)))
+(assert (> (matrix 1 1) 0))
+(assert (>= (matrix 1 1) (if (=(matrix 1 5) 1) (- (matrix 0 4) (matrix 1 4)) 1)))
+(assert (<= (matrix 1 1) 120))
+(assert (= (matrix 1 1) (+ (matrix 0 1) (- 0 (dist (matrix 0 5) (matrix 1 5)))(if (=(matrix 1 5) 1) (- (matrix 0 4) (matrix 1 4)) 0))))
+(assert (> (matrix 1 2) 0))
+(assert (>= (matrix 1 2) (if (=(matrix 1 5) 2) (- (matrix 0 4) (matrix 1 4)) 1)))
+(assert (<= (matrix 1 2) 120))
+(assert (= (matrix 1 2) (+ (matrix 0 2) (- 0 (dist (matrix 0 5) (matrix 1 5)))(if (=(matrix 1 5) 2) (- (matrix 0 4) (matrix 1 4)) 0))))
+(assert (> (matrix 1 3) 0))
+(assert (>= (matrix 1 3) (if (=(matrix 1 5) 3) (- (matrix 0 4) (matrix 1 4)) 1)))
+(assert (<= (matrix 1 3) 200))
+(assert (= (matrix 1 3) (+ (matrix 0 3) (- 0 (dist (matrix 0 5) (matrix 1 5)))(if (=(matrix 1 5) 3) (- (matrix 0 4) (matrix 1 4)) 0))))
+(assert (> (dist (matrix 0 5) (matrix 1 5)) 0))
+(assert (or
+(= (matrix 1 5) 0)
+(= (matrix 1 5) 1)
+(= (matrix 1 5) 2)
+(= (matrix 1 5) 3)
+))
+(assert (>= (matrix 1 4) (if (< (matrix 1 (matrix 1 5))0) 320 0)))
+(assert (<= (matrix 1 4) (if (< (matrix 1 (matrix 1 5))0) 320 (matrix 0 4))))
+\end{verbatim}
+$\cdots \cdots$ 
+\begin{verbatim}
+(assert (>= (matrix 11 4) (if (< (matrix 11 (matrix 11 5))0) 320 0)))
+(assert (<= (matrix 11 4) (if (< (matrix 11 (matrix 11 5))0) 320 (matrix 10 4))))
+
+(assert (or
+(and
+(= (matrix 11 1) (matrix 0 1))
+(= (matrix 11 2) (matrix 0 2))
+(= (matrix 11 3) (matrix 0 3))
+(= (matrix 11 4) (matrix 0 4))
+(= (matrix 11 5) (matrix 0 5))
+)
+(and
+(= (matrix 11 1) (matrix 1 1))
+(= (matrix 11 2) (matrix 1 2))
+(= (matrix 11 3) (matrix 1 3))
+(= (matrix 11 4) (matrix 1 4))
+(= (matrix 11 5) (matrix 1 5))
+)
+\end{verbatim}
+$\cdots \cdots$ 
+\begin{verbatim}
+(and
+(= (matrix 11 1) (matrix 10 1))
+(= (matrix 11 2) (matrix 10 2))
+(= (matrix 11 3) (matrix 10 3))
+(= (matrix 11 4) (matrix 10 4))
+(= (matrix 11 5) (matrix 10 5))
+)
+))
+
+(check)
+\end{verbatim}
+}
+
+\noindent Applying {\tt yices -e Exercise2-2b.smt} yields the following result within a couple of seconds:
+\begin{verbatim}
+{\footnotesize
+sat
+(= (dist 0 0) 0)
+(= (dist 0 1) 29)
+(= (dist 0 2) 21)
+(= (dist 0 3) -1)
+\end{verbatim}
+$\cdots \cdots$ 
+\begin{verbatim}
+(= (dist 3 2) 37)
+(= (dist 3 3) 0)
+(= (matrix 0 0) -1)
+(= (matrix 0 1) 50)
+(= (matrix 0 2) 40)
+(= (matrix 0 3) 150)
+(= (matrix 0 4) 320)
+(= (matrix 0 5) 0)
+(= (matrix 1 0) -1)
+(= (matrix 1 1) 29)
+(= (matrix 1 2) 98)
+(= (matrix 1 3) 129)
+(= (matrix 1 4) 241)
+(= (matrix 1 5) 2)
+\end{verbatim}
+$\cdots \cdots$ 
+\begin{verbatim}
+(= (matrix 11 0) -1)
+(= (matrix 11 1) 82)
+(= (matrix 11 2) 99)
+(= (matrix 11 3) 74)
+(= (matrix 11 4) 320)
+(= (matrix 11 5) 0)
+}.
+\end{verbatim}
+\noindent Now if we put all these results in a table, we get the following table, where the first column denotes the stock of the supply city, the next three columns the stock of the villages, the next the load of the truck and the last column the city in which the truck is residing:\\
+\begin{center}
+\begin{tabular}{| l | l | l | l | l | l | l |}
+\hline
+Step 	& S	& A	& B	& C 	& T 	& Location\\
+\hline
+0	& 	-1	&	50	&	40 	&	150	&	320	&	0	\\
+1	& 	-1	&	29	&	98	&	129	&	241	&	2	\\
+2	& 	-1	&	120	&	81 	&	112	&	133	&	1	\\
+3	& 	-1	&	103	&	120 	&	195	&	77	&	2	\\
+4	& 	-1	&	82	&	99	&	74	&	320	&	0	\\
+5	& 	-1	&	120	&	70	&	45	&	253	&	1	\\
+6	& 	-1	&	88	&	38 	&	199 	&	67	&	3	\\
+7	& 	-1	&	51	&	67 	&	162	&	1	&	2	\\
+8	& 	-1	&	30	&	46 	&	141	&	320	&	0	\\
+9	& 	-1	&	120	&	17 	&	112	&	201	&	1	\\
+10	& 	-1	&	103	&	120 	&	95	&	81	&	2	\\
+11	& 	-1	&	82	&	99	&	74	&	320	&	0	\\
+\hline
+\end{tabular}
+\end{center}
+\vspace{3mm}
+\noindent As you can see in step 11 we reach the same state as in step 4. So if the truck constantly takes the route defined by the steps 5, 6, 7, 8, 9, 10 and 11 the villages will never run out of stock.
+\vspace{3mm}
+
+\noindent{\bf Remarks:}\\
+We check whether the model returns to the correct same state as the starting state. This is however a little bit strict, we could also allow the model to return in a state where the truck is again fully loaded in the supply city but all the villages have at least as much stock as at the start. This means if they have a higher stock we also now that the city will be provided forever because the truck can take the same router over and over again. This might be faster.
 
 \vspace{3mm}
 
-Now you can easily check all the requirements of this problem with this table and you see that they are all met. The total running time for all of these jobs is 59. Now if we run the program with maxTime $\leq$ 58 we get unsat and therefore the minimum total running time for these requirements is 59.
-
+\subsection*{Solution (c):}
+For this we do exactly the same as in (b) only with a capacity of 318 instead of 320 for the truck. This leads to the same program (with a check of 318 instead of 320 for the truck). Applying {\tt yices -e Exercise2-c.smt} yields the following result:
+within a fraction of a second:
+\begin{verbatim}
+{\footnotesize
+sat
+(= (dist 0 0) 0)
+(= (dist 0 1) 29)
+(= (dist 0 2) 21)
+(= (dist 0 3) -1)
+\end{verbatim}
+$\cdots \cdots$ 
+\begin{verbatim}
+(= (dist 3 2) 37)
+(= (dist 3 3) 0)
+(= (matrix 0 0) -1)
+(= (matrix 0 1) 50)
+(= (matrix 0 2) 40)
+(= (matrix 0 3) 150)
+(= (matrix 0 4) 318)
+(= (matrix 0 5) 0)
+(= (matrix 1 0) -1)
+(= (matrix 1 1) 29)
+(= (matrix 1 2) 37)
+(= (matrix 1 3) 129)
+(= (matrix 1 4) 300)
+(= (matrix 1 5) 2)
+\end{verbatim}
+$\cdots \cdots$ 
+\begin{verbatim}
+(= (matrix 11 0) -1)
+(= (matrix 11 1) 82)
+(= (matrix 11 2) 99)
+(= (matrix 11 3) 74)
+(= (matrix 11 4) 318s)
+(= (matrix 11 5) 0)
+}.
+\end{verbatim}
+\noindent Now if we put all these results in a table, we get the following table, where the first column denotes the stock of the supply city, the next three columns the stock of the villages, the next the load of the truck and the last column the city in which the truck is residing:\\
+\begin{center}
+\begin{tabular}{| l | l | l | l | l | l | l |}
+\hline
+Step 	& S	& A	& B	& C 	& T 	& Location\\
+\hline
+0	& 	-1	&	50	&	40 	&	150	&	318	&	0	\\
+1	& 	-1	&	29	&	37	&	129	&	300	&	2	\\
+2	& 	-1	&	120	&	20 	&	112	&	192	&	1	\\
+3	& 	-1	&	103	&	120 	&	95	&	75	&	2	\\
+4	& 	-1	&	82	&	99	&	74	&	318	&	0	\\
+5	& 	-1	&	119	&	70	&	45	&	252	&	1	\\
+6	& 	-1	&	87	&	38 	&	199 	&	66	&	3	\\
+7	& 	-1	&	50	&	67 	&	162	&	0	&	2	\\
+8	& 	-1	&	29	&	46 	&	141	&	318	&	0	\\
+9	& 	-1	&	120	&	17 	&	112	&	198	&	1	\\
+10	& 	-1	&	103	&	120 	&	95	&	78	&	2	\\
+11	& 	-1	&	82	&	99	&	74	&	318	&	0	\\
+\hline
+\end{tabular}
+\end{center}
 \vspace{3mm}
-
-{\bf Remark:}
-
-The formula gives unknown instead of sat. This is due to the forall function in yices. This is a known problem.\\
-
-\vspace{3mm}
-
-{\bf Generalization:}
-
-Though it is hard to generalize the whole problem, it is not hard to adapt the program quickly to other amount of jobs. The only thing that needs to be done is to add clauses for the new jobs to the set of clauses regarding only specified jobs.\\
-
+\noindent As you can see in step 11 we reach the same state as in step 4. So if the truck constantly takes the route defined by the steps 5, 6, 7, 8, 9, 10 and 11 the villages will never run out of stock.
 \vspace{3mm}
 
 \subsection*{Problem 4: Choose your own non-trivial problem}
@@ -235,7 +552,7 @@ For our own non-trivial problem we have chosen for the room square problem. The 
 \item Each symbol occurs exactly once in each row and column of the matrix
 \item Every unordered pair of symbols occurs in exactly one cell of the matrix
 \end{itemize}
-The exercise is to find the Room square for $n = 13$. Note that Room squares only exist when $n$ is odd and larger than 5.
+The exercise is to find the Room square for $n = 7$. Note that Room squares only exist when $n$ is odd and larger than 5.
 \vspace{8mm}
 
 \subsection*{Solution:}
@@ -251,8 +568,7 @@ The next formula is for the columns:
 Now the last constraint is left. That is that every unordered pair of symbols occurs exactly once in the matrix. This gives the following formula:
 \[\bigwedge_{x=1}^{n+1} \bigwedge_{y=x+1}^{n+1} ( \bigvee_{i=1}^{n} \bigvee_{j,k = 1 \leq j < k \leq n} (p_{i,j} = x \wedge q_{i,j} = y) \wedge \neg (p_{i,k} = x \wedge q_{i,k} = y)  \wedge \]
 \[ \bigvee_{j=1}^{n} \bigvee_{i,k = 1 \leq i < k \leq n} (p_{i,j} = x \wedge q_{i,j} = y) \wedge \neg (p_{k,j} = x \wedge q_{k,j} = y) \]
-If we put this all in a smt generator for this problem we get the following smt file
-TODO RESULT WANNEER AF
+If we put this all in a SMT generator for this problem we get the following SMT file:
 
 {\footnotesize
 \begin{verbatim}
@@ -282,34 +598,32 @@ $\vdots$
 }
 
 \noindent Now if we put all these values in a table, we get the following table:\\
-\\
-\begin{tabular}{| l | l | l | l | l | l | l | l | l |}
+\begin{center}
+\begin{tabular}{| l | l | l | l | l | l | l |}
 \hline
-Steps	& $a_1$	& $a_2$	& $a_3$ & $a_4$ & $a_5$	& $a_6$	& $a_7$ & $a_8$\\
+0	& 1	&	2	&	3 & 4	&	5	&	6 \\
 \hline
-$0$	& 1	&	2	&	3 & 4	&	5	&	6 & 7 & 8\\
-$1$	& 1	&	2	&	3 & 4	&	5	&	6 & 14 & 8\\
-$2$	& 1	&	2	&	3 & 4	&	5	&	19 & 14 & 8\\
-$3$	& 1	&	2	&	3 & 4	&	23	&	19& 14 & 8\\
-$4$	& 1	&	2	&	3 & 4	&	23	&	37 & 14 & 8\\
-$5$	& 1	&	2	&	3 & 4	&	41	&	37 & 14 & 8\\
-$6$	& 1	&	2	&	3 & 4	&	41	&	55 & 14 & 8\\
-$7$	& 1	&	2	&	3 & 44	&	41	&	55 & 14 & 8\\
-$8$	& 1	&	2	&	3 & 44	&	99	&	55 & 14 & 8\\
-$9$	& 1	&	2	&	3 & 102	&	99	&	55 & 14 & 8\\
-$10$	& 1	&	2	&	3 & 102	&	157	&	55 & 14 & 8\\
+0	& 1	&	2	&	3 & 4	&	5	&	6 \\
+\hline
+0	& 1	&	2	&	3 & 4	&	5	&	6 \\
+\hline
+0	& 1	&	2	&	3 & 4	&	5	&	6 \\
+\hline
+0	& 1	&	2	&	3 & 4	&	5	&	6 \\
+\hline
+0	& 1	&	2	&	3 & 4	&	5	&	6 \\
+\hline
+0	& 1	&	2	&	3 & 4	&	5	&	6 \\
 \hline
 \end{tabular}
+\end{center}
+\vspace{3mm}
+
+Now you can easily check all the requirements of this problem with this table. The numbers 1 until 8 appear once in every column and row and all the different pairs occur exactly once. Therefore we have found a valid solution for the room square problem of size 7. 
 
 \vspace{3mm}
 
-Now you can easily check all the requirements of this problem with this table and you see that the solution is found in 10 steps. Now if we run the program with at most 9 steps, we get unsat and therefore the minimum number of steps required in the case specified above is 10.
+\noindent {\bf Remark:}\\
+Though we have created a Room square of 7 it was already very hard to create one for 9. We tried but Yices was running for hours without a solution, which is of course not so weird if you look at the logic formulas. They expand very quick when the Room square becomes larger.
 
-\vspace{3mm}
-
-{\bf Generalization:}
-
-Though the problem is not very complex, writing out lines as we did above takes a huge amount of time. As such, we created a java program that produces the output for us, after giving it the basic input values. The full explanation on how the java program works is given above.\\
-
-\vspace{3mm}
 \end{document}
