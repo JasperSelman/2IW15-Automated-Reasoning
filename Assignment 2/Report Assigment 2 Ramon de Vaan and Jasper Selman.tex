@@ -572,17 +572,77 @@ If we put this all in a SMT generator for this problem we get the following SMT 
 
 {\footnotesize
 \begin{verbatim}
+(define matrix::(-> int int int int))
 
-\end{verbatim}
-$\vdots$
-$\vdots$
-\begin{verbatim}
 (assert (or
+(and 
+(= (matrix 0 0 0) (- 0 1))
+(= (matrix 0 0 1) (- 0 1))
+)
+(and
+(>= (matrix 0 0 0) 0)
+(<= (matrix 0 0 0) 7)
+(>= (matrix 0 0 1) 0)
+(<= (matrix 0 0 1) 7)
+)
+))
+(assert (or
+(and 
+(= (matrix 0 1 0) (- 0 1))
+(= (matrix 0 1 1) (- 0 1))
+)
+(and
+(>= (matrix 0 1 0) 0)
+(<= (matrix 0 1 0) 7)
+(>= (matrix 0 1 1) 0)
+(<= (matrix 0 1 1) 7)
+)
+))
 \end{verbatim}
-$\vdots$
-$\vdots$
+$\cdots \cdots$ 
 \begin{verbatim}
+(assert (= (+
+(if (= (matrix 0 4 0) 5) 1 0)
+(if (= (matrix 0 4 1) 5) 1 0)
+(if (= (matrix 1 4 0) 5) 1 0)
+(if (= (matrix 1 4 1) 5) 1 0)
+(if (= (matrix 2 4 0) 5) 1 0)
+(if (= (matrix 2 4 1) 5) 1 0)
+(if (= (matrix 3 4 0) 5) 1 0)
+(if (= (matrix 3 4 1) 5) 1 0)
+(if (= (matrix 4 4 0) 5) 1 0)
+(if (= (matrix 4 4 1) 5) 1 0)
+(if (= (matrix 5 4 0) 5) 1 0)
+(if (= (matrix 5 4 1) 5) 1 0)
+(if (= (matrix 6 4 0) 5) 1 0)
+(if (= (matrix 6 4 1) 5) 1 0)
+) 1))
+\end{verbatim}
+$\cdots \cdots$ 
+\begin{verbatim}
+(if (and
+(or
+(= (matrix 6 5 0) 6)
+(= (matrix 6 5 1) 6)
+)
+(or
+(= (matrix 6 5 0) 7)
+(= (matrix 6 5 1) 7)
+)
+) 1 0)
+(if (and
+(or
+(= (matrix 6 6 0) 6)
+(= (matrix 6 6 1) 6)
+)
+(or
+(= (matrix 6 6 0) 7)
+(= (matrix 6 6 1) 7)
+)
+) 1 0)
+) 1))
 
+(check)
 \end{verbatim}
 }
 
@@ -590,36 +650,47 @@ $\vdots$
 
 {\footnotesize
 \begin{verbatim}
-(= (matrix 0 1) 1)
-(= (matrix 0 2) 2)
-(= (matrix 0 3) 3)
+sat
+(= (matrix 0 0 0) -1)
+(= (matrix 0 0 1) -1)
+(= (matrix 0 1 0) 0)
+(= (matrix 0 1 1) 4)
+(= (matrix 0 2 0) -1)
+(= (matrix 0 2 1) -1)
 \end{verbatim}
-$\vdots$
+$\cdots \cdots$ 
+\begin{verbatim}
+(= (matrix 6 5 0) 0)
+(= (matrix 6 5 1) 2)
+(= (matrix 6 6 0) 3)
+(= (matrix 6 6 1) 6)
+\end{verbatim}
+$\cdots$
 }
 
-\noindent Now if we put all these values in a table, we get the following table:\\
+\noindent Notice that the set $S$ contains the numbers from 0 up to including 7. An empty cell is represented by -1.  Now if we put all these values in a table, we get the following table:\\
 \begin{center}
 \begin{tabular}{| l | l | l | l | l | l | l |}
 \hline
-0	& 1	&	2	&	3 & 4	&	5	&	6 \\
+(0,7)	& 	&	(2,3)	&	 & (4,6)	&	(1,5)	& \\
 \hline
-0	& 1	&	2	&	3 & 4	&	5	&	6 \\
+	& 	&		&	(3,4) & (5,7)	&	(0,6)	&	(1,2) \\
 \hline
-0	& 1	&	2	&	3 & 4	&	5	&	6 \\
+	& (2,6)	&	(4,7)	&	(0,5) & (1,3)	&		&	 \\
 \hline
-0	& 1	&	2	&	3 & 4	&	5	&	6 \\
+(2,5)	& (0,4)	&		&	(1,6)  & 	&	(3,7)	&	 \\
 \hline
-0	& 1	&	2	&	3 & 4	&	5	&	6 \\
+(1,4)	& 	&	(5,6)	&	(2,7) & 	&		&	(0,3) \\
 \hline
-0	& 1	&	2	&	3 & 4	&	5	&	6 \\
+(3,6)	& (1,7)	&		&	 & (0,2)	&		&	(4,5) \\
 \hline
-0	& 1	&	2	&	3 & 4	&	5	&	6 \\
+	& (3,5)	&	(0,1)	&	 & 	&	(2,4)	&	(6,7)\\
 \hline
 \end{tabular}
 \end{center}
 \vspace{3mm}
 
-Now you can easily check all the requirements of this problem with this table. The numbers 1 until 8 appear once in every column and row and all the different pairs occur exactly once. Therefore we have found a valid solution for the room square problem of size 7. 
+Now you can easily check all the requirements of this problem with this table. The numbers 0 until 7 appear once in every column and row and all the different pairs occur exactly once. Therefore we have found a valid solution for the room square problem of size 7. 
 
 \vspace{3mm}
 
