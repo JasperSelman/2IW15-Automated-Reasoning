@@ -22,7 +22,7 @@
 (assert (= (matrix 0 1) 50))
 (assert (= (matrix 0 2) 40))
 (assert (= (matrix 0 3) 150))
-(assert (= (matrix 0 4) 320))
+(assert (= (matrix 0 4) 318))
 (assert (= (matrix 0 5) 0))
 
 (assert (= (matrix 1 0) (- 0 1)))
@@ -45,8 +45,8 @@
 (= (matrix 1 5) 2)
 (= (matrix 1 5) 3)
 ))
-(assert (>= (matrix 1 4) (if (< (matrix 1 (matrix 1 5))0) 320 0)))
-(assert (<= (matrix 1 4) (if (< (matrix 1 (matrix 1 5))0) 320 (matrix 0 4))))
+(assert (>= (matrix 1 4) (if (< (matrix 1 (matrix 1 5))0) 318 0)))
+(assert (<= (matrix 1 4) (if (< (matrix 1 (matrix 1 5))0) 318 (matrix 0 4))))
 
 (assert (= (matrix 2 0) (- 0 1)))
 (assert (> (matrix 2 1) 0))
@@ -68,8 +68,8 @@
 (= (matrix 2 5) 2)
 (= (matrix 2 5) 3)
 ))
-(assert (>= (matrix 2 4) (if (< (matrix 2 (matrix 2 5))0) 320 0)))
-(assert (<= (matrix 2 4) (if (< (matrix 2 (matrix 2 5))0) 320 (matrix 1 4))))
+(assert (>= (matrix 2 4) (if (< (matrix 2 (matrix 2 5))0) 318 0)))
+(assert (<= (matrix 2 4) (if (< (matrix 2 (matrix 2 5))0) 318 (matrix 1 4))))
 
 (assert (= (matrix 3 0) (- 0 1)))
 (assert (> (matrix 3 1) 0))
@@ -91,8 +91,8 @@
 (= (matrix 3 5) 2)
 (= (matrix 3 5) 3)
 ))
-(assert (>= (matrix 3 4) (if (< (matrix 3 (matrix 3 5))0) 320 0)))
-(assert (<= (matrix 3 4) (if (< (matrix 3 (matrix 3 5))0) 320 (matrix 2 4))))
+(assert (>= (matrix 3 4) (if (< (matrix 3 (matrix 3 5))0) 318 0)))
+(assert (<= (matrix 3 4) (if (< (matrix 3 (matrix 3 5))0) 318 (matrix 2 4))))
 
 (assert (= (matrix 4 0) (- 0 1)))
 (assert (> (matrix 4 1) 0))
@@ -114,8 +114,8 @@
 (= (matrix 4 5) 2)
 (= (matrix 4 5) 3)
 ))
-(assert (>= (matrix 4 4) (if (< (matrix 4 (matrix 4 5))0) 320 0)))
-(assert (<= (matrix 4 4) (if (< (matrix 4 (matrix 4 5))0) 320 (matrix 3 4))))
+(assert (>= (matrix 4 4) (if (< (matrix 4 (matrix 4 5))0) 318 0)))
+(assert (<= (matrix 4 4) (if (< (matrix 4 (matrix 4 5))0) 318 (matrix 3 4))))
 
 (assert (= (matrix 5 0) (- 0 1)))
 (assert (> (matrix 5 1) 0))
@@ -137,8 +137,8 @@
 (= (matrix 5 5) 2)
 (= (matrix 5 5) 3)
 ))
-(assert (>= (matrix 5 4) (if (< (matrix 5 (matrix 5 5))0) 320 0)))
-(assert (<= (matrix 5 4) (if (< (matrix 5 (matrix 5 5))0) 320 (matrix 4 4))))
+(assert (>= (matrix 5 4) (if (< (matrix 5 (matrix 5 5))0) 318 0)))
+(assert (<= (matrix 5 4) (if (< (matrix 5 (matrix 5 5))0) 318 (matrix 4 4))))
 
 (assert (= (matrix 6 0) (- 0 1)))
 (assert (> (matrix 6 1) 0))
@@ -160,8 +160,8 @@
 (= (matrix 6 5) 2)
 (= (matrix 6 5) 3)
 ))
-(assert (>= (matrix 6 4) (if (< (matrix 6 (matrix 6 5))0) 320 0)))
-(assert (<= (matrix 6 4) (if (< (matrix 6 (matrix 6 5))0) 320 (matrix 5 4))))
+(assert (>= (matrix 6 4) (if (< (matrix 6 (matrix 6 5))0) 318 0)))
+(assert (<= (matrix 6 4) (if (< (matrix 6 (matrix 6 5))0) 318 (matrix 5 4))))
 
 (assert (= (matrix 7 0) (- 0 1)))
 (assert (> (matrix 7 1) 0))
@@ -183,8 +183,8 @@
 (= (matrix 7 5) 2)
 (= (matrix 7 5) 3)
 ))
-(assert (>= (matrix 7 4) (if (< (matrix 7 (matrix 7 5))0) 320 0)))
-(assert (<= (matrix 7 4) (if (< (matrix 7 (matrix 7 5))0) 320 (matrix 6 4))))
+(assert (>= (matrix 7 4) (if (< (matrix 7 (matrix 7 5))0) 318 0)))
+(assert (<= (matrix 7 4) (if (< (matrix 7 (matrix 7 5))0) 318 (matrix 6 4))))
 
 (assert (= (matrix 8 0) (- 0 1)))
 (assert (> (matrix 8 1) 0))
@@ -206,8 +206,8 @@
 (= (matrix 8 5) 2)
 (= (matrix 8 5) 3)
 ))
-(assert (>= (matrix 8 4) (if (< (matrix 8 (matrix 8 5))0) 320 0)))
-(assert (<= (matrix 8 4) (if (< (matrix 8 (matrix 8 5))0) 320 (matrix 7 4))))
+(assert (>= (matrix 8 4) (if (< (matrix 8 (matrix 8 5))0) 318 0)))
+(assert (<= (matrix 8 4) (if (< (matrix 8 (matrix 8 5))0) 318 (matrix 7 4))))
 
 (assert (= (matrix 9 0) (- 0 1)))
 (assert (> (matrix 9 1) 0))
@@ -229,8 +229,8 @@
 (= (matrix 9 5) 2)
 (= (matrix 9 5) 3)
 ))
-(assert (>= (matrix 9 4) (if (< (matrix 9 (matrix 9 5))0) 320 0)))
-(assert (<= (matrix 9 4) (if (< (matrix 9 (matrix 9 5))0) 320 (matrix 8 4))))
+(assert (>= (matrix 9 4) (if (< (matrix 9 (matrix 9 5))0) 318 0)))
+(assert (<= (matrix 9 4) (if (< (matrix 9 (matrix 9 5))0) 318 (matrix 8 4))))
 
 (assert (= (matrix 10 0) (- 0 1)))
 (assert (> (matrix 10 1) 0))
@@ -252,8 +252,8 @@
 (= (matrix 10 5) 2)
 (= (matrix 10 5) 3)
 ))
-(assert (>= (matrix 10 4) (if (< (matrix 10 (matrix 10 5))0) 320 0)))
-(assert (<= (matrix 10 4) (if (< (matrix 10 (matrix 10 5))0) 320 (matrix 9 4))))
+(assert (>= (matrix 10 4) (if (< (matrix 10 (matrix 10 5))0) 318 0)))
+(assert (<= (matrix 10 4) (if (< (matrix 10 (matrix 10 5))0) 318 (matrix 9 4))))
 
 (assert (= (matrix 11 0) (- 0 1)))
 (assert (> (matrix 11 1) 0))
@@ -275,8 +275,8 @@
 (= (matrix 11 5) 2)
 (= (matrix 11 5) 3)
 ))
-(assert (>= (matrix 11 4) (if (< (matrix 11 (matrix 11 5))0) 320 0)))
-(assert (<= (matrix 11 4) (if (< (matrix 11 (matrix 11 5))0) 320 (matrix 10 4))))
+(assert (>= (matrix 11 4) (if (< (matrix 11 (matrix 11 5))0) 318 0)))
+(assert (<= (matrix 11 4) (if (< (matrix 11 (matrix 11 5))0) 318 (matrix 10 4))))
 
 (assert (or
 (and
